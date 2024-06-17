@@ -1,0 +1,16 @@
+#input{
+    color: black;
+    height: 200px;
+    width: 100%;
+    border: 1px solid black;
+    display:block;
+    margin: 3px;
+}
+#input.error:focus{
+    color: red;
+    border: 3px solid red;
+}
+#input.error{
+    color: red;
+    border: 1px solid red;
+}
