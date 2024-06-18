@@ -12,24 +12,88 @@ code {
     monospace;
 }
 
-.card{
-  border: 1px solid black;
-  border-radius: 3px;
+.card {
+
   display: inline-block;
   width: 40px;
   height: 60px;
+  user-select: none;
 }
 
-.stack{
+.card .suit {
+  width: 100%;
+  text-align: center;
+  font-size: 37px;
+}
+
+
+.stack {
   position: relative;
   display: inline-block;
+  user-select: none;
 }
 
-.stack .card{
+.stack .card {
   position: absolute;
-  top: 0;
-  bottom: 0;
   background: white;
-  color: white;
+}
 
+.stack .card.toss {
+  animation-name: animateIn;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+}
+
+
+
+@keyframes animateIn {
+  0% {
+    opacity: .9;
+    top: 0px;
+    left: 0px;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+
+.card {
+  position: absolute;
+  backface-visibility: hidden;
+}
+
+.content {
+  position: absolute;
+  transition: transform 1s;
+  transform-style: preserve-3d;
+  width: 40px;
+  height: 60px;
+
+  display: inline-block;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.front,
+.back {
+  position: absolute;
+  width: 40px;
+  height: 60px;
+  background: white;
+  backface-visibility: hidden;
+  border: 1px solid black;
+  border-radius: 3px;
+}
+
+div.card.down .content {
+  transform: rotateY(180deg);
+  transition: transform 0.5s;
+}
+
+.back {
+  transform: rotateY(180deg);
+  background-image: url(/dist/joker.back.jpg);
+  background-size: contain;
+  border-color: white;
 }
