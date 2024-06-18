@@ -11,3 +11,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.card{
+  border: 1px solid black;
+  border-radius: 3px;
+  display: inline-block;
+  width: 40px;
+  height: 60px;
+}
+
+.stack{
+  position: relative;
+  display: inline-block;
+}
+
+.stack .card{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: white;
+  color: white;
+
+}
