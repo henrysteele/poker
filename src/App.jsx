@@ -1,107 +1,119 @@
 import { createCards } from "./cards"
 import { For, createSignal, createEffect } from "solid-js"
+import { Box, Card, Stack, CardContent, CardActions } from "@suid/material"
+import config from "./config"
 
 function App () {
   return (
     <>
-      <Dealer />
-      <Player />
+      <Stack direction="row" spacing="1em">
+        <Dealer />
+        <Player />
+      </Stack>
     </>
   )
 }
 
-function Dealer () {
+
+
+function Profile (props) {
+
+  const src = props.src || `https://randomuser.me/api/portraits/lego/${Math.floor(Math.random() * 10)}.jpg`
+  const style = { ...config.style.profile.image, ...props.style, background: `url(${src})` }
+
+  return <>
+    <div class="capitalize">{props.name || "anonymous"}</div>
+    <div style={style} ></div>
+  </>
+}
+
+const Dealer = () => <Player name="dealer" />
+
+function Player (props) {
+  const actions = props.name == "dealer" ? <DeckOfCards /> : <Hand cards={["A♣", "A♥", "A♦", "K♠", "Q♠"]} />
   return (
     <>
-      <div>
-        I'm a Dealer!
-        <Deck />
-      </div>
+      <Box>
+        <Card sx={{ padding: "1em", width: "fit-content" }}>
+          <CardContent><Profile name={props.name} /></CardContent>
+          <CardActions>{actions} </CardActions>
+        </Card>
+      </Box>
     </>
   )
 }
 
-function Player () {
-  return (
-    <>
-      <div>
-        I'm a Player!
-        <Hand />
-      </div>
-    </>
-  )
-}
-
-function Deck () {
+function DeckOfCards () {
   const cards = createCards()
   return (
     <>
 
-      <div class="stack">
+      <div style={config.style.deck}>
         <For each={["", "", ""]}>{(_, i) => {
           const left = i() * 3 + "px"
           const top = i() * 3 + "px"
-          return <Card down={true} style={{ top, left }} />
+          const position = "absolute"
+          return <div style={{
+            ...config.style.back, top, left, position,
+            border: "1px solid white",
+            "border-radius": "3px",
+          }} />
         }
         }</For>
       </div>
 
-      <div class="stack">
-        <For each={cards}>{(text) => {
-          const top = Math.random() * 30 + "vh"
-          const left = Math.random() * 70 + "vw"
-          const rotate = -33 + Math.random() * 66 + "deg"
-          return <Card text={text} down={Math.round(Math.random() - .3)} style={{ top, left, rotate }} />
-        }
-        }</For>
-      </div>
     </>
   )
 }
 
-function Hand () {
+function Hand (props) {
+  const [cards, setCards] = createSignal(props.cards)
   return (
     <>
-      <div>I'm a Hand!</div>
+      <Stack direction="row" spacing={1}>
+        <For each={cards()}>{(card) => <>
+          <PlayingCard text={card} clickable></PlayingCard>
+        </>}</For>
+      </Stack>
     </>
   )
 }
 
 let zIndex = 1
 
-function Card (props) {
+function PlayingCard (props) {
 
   const [down, setDown] = createSignal(props.down)
-  const [toss, setToss] = createSignal(true)
   const [z, setZ] = createSignal(1)
   const [style, setStyle] = createSignal("")
 
-  // const faces = "♠♥♣♦"
   const text = props.text?.trim() || ""
   const value = text.slice(0, text.length - 1)
-  const suit = text.slice(-1)
-  const color = "♥♦".includes(suit) ? "red" : "black"
+  const suit = text.slice(-1).toLowerCase()
+  const color = config.color[suit]
 
   createEffect(() => {
-    setStyle({ ...props.style, color, "z-index": z() })
+    setStyle({ ...config.style.card, ...props.style, color, "z-index": z() })
   })
 
 
   return (
     <div onClick={() => {
+      if (!props.clickable) return
       setDown(!down())
-      setToss(false)
       setZ(++zIndex)
     }}>
-      <div class={`card ${toss() && "toss"} ${down() && "down"}`} style={style()}>
-        <div class="content">
-          <div class="front">
-            <div class="value">{value}</div>
-            <div class="suit">{suit}</div>
+      <Card >
+        <Show when={!down()} fallback={<div style={{ ...style(), ...config.style.back }}></div>}>
+          <div style={style()}>
+            <div>{value}</div>
+            <div style={{
+              ...config.style.suit,
+              "background-image": `url(/dist/${config.suits[suit]}.png)`
+            }}></div>
           </div>
-          <div class="back down"></div>
-        </div>
-      </div>
+        </Show>
+      </Card>
 
     </div>
   )

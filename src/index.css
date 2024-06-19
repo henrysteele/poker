@@ -12,8 +12,8 @@ code {
     monospace;
 }
 
+/*
 .card {
-
   display: inline-block;
   width: 40px;
   height: 60px;
@@ -96,4 +96,14 @@ div.card.down .content {
   background-image: url(/dist/joker.back.jpg);
   background-size: contain;
   border-color: white;
+}
+
+.player,
+.dealer {
+  width: fit-content;
+} */
+
+
+.capitalize {
+  text-transform: capitalize;
 }
