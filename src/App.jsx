@@ -1,6 +1,6 @@
 import { createCards, dealCards, bestHand, getRank } from "./cards"
 import { For, createSignal, createEffect, onMount } from "solid-js"
-import { Box, Card, Stack, CardContent, CardActions } from "@suid/material"
+import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
 import config from "./config"
 
@@ -11,7 +11,7 @@ function App () {
   getRank(hands[0], hands)
   return (
     <>
-      <Stack direction="row" spacing="1em">
+      <Container>
         <Dealer />
         <For each={hands}>
           {(hand) => (
@@ -20,7 +20,7 @@ function App () {
             </>
           )}
         </For>
-      </Stack>
+      </Container>
     </>
   )
 }
@@ -51,18 +51,15 @@ const Dealer = () => <Player name="dealer" />
 function Player (props) {
   const actions =
     props.name == "dealer" ? <DeckOfCards /> : <Hand cards={props.cards} />
-  return (
-    <>
-      <Box>
-        <Card sx={{ padding: "1em", width: "fit-content" }}>
-          <CardContent>
-            <Profile name={props.name} />
-          </CardContent>
-          <CardActions>{actions} </CardActions>
-        </Card>
-      </Box>
-    </>
-  )
+  return <Box sx={{ margin: "1em", display: "inline-block" }}>
+    <Card sx={{ padding: "1em", width: "fit-content" }}>
+      <CardContent>
+        <Profile name={props.name} />
+      </CardContent>
+      <CardActions>{actions} </CardActions>
+    </Card>
+  </Box>
+
 }
 
 function DeckOfCards () {
