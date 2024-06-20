@@ -1,41 +1,61 @@
-import { createCards } from "./cards"
+import { createCards, dealCards, bestHand, getRank } from "./cards"
 import { For, createSignal, createEffect } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions } from "@suid/material"
 import config from "./config"
 
-function App () {
+function App() {
+  const names = ["Henry", "Dork", "Dumby"]
+  const cards = createCards()
+  const hands = dealCards(cards, names)
+  getRank(hands[0], hands)
   return (
     <>
       <Stack direction="row" spacing="1em">
         <Dealer />
-        <Player />
+        <For each={hands}>
+          {(hand) => (
+            <>
+              <Player name={hand.name} cards={hand.cards} />
+            </>
+          )}
+        </For>
       </Stack>
     </>
   )
 }
 
+function Profile(props) {
+  const src =
+    props.src ||
+    `https://randomuser.me/api/portraits/lego/${Math.floor(
+      Math.random() * 10
+    )}.jpg`
+  const style = {
+    ...config.style.profile.image,
+    ...props.style,
+    background: `url(${src})`,
+  }
 
-
-function Profile (props) {
-
-  const src = props.src || `https://randomuser.me/api/portraits/lego/${Math.floor(Math.random() * 10)}.jpg`
-  const style = { ...config.style.profile.image, ...props.style, background: `url(${src})` }
-
-  return <>
-    <div class="capitalize">{props.name || "anonymous"}</div>
-    <div style={style} ></div>
-  </>
+  return (
+    <>
+      <div class="capitalize">{props.name || "anonymous"}</div>
+      <div style={style}></div>
+    </>
+  )
 }
 
 const Dealer = () => <Player name="dealer" />
 
-function Player (props) {
-  const actions = props.name == "dealer" ? <DeckOfCards /> : <Hand cards={["A♣", "A♥", "A♦", "K♠", "Q♠"]} />
+function Player(props) {
+  const actions =
+    props.name == "dealer" ? <DeckOfCards /> : <Hand cards={props.cards} />
   return (
     <>
       <Box>
         <Card sx={{ padding: "1em", width: "fit-content" }}>
-          <CardContent><Profile name={props.name} /></CardContent>
+          <CardContent>
+            <Profile name={props.name} />
+          </CardContent>
           <CardActions>{actions} </CardActions>
         </Card>
       </Box>
@@ -43,38 +63,47 @@ function Player (props) {
   )
 }
 
-function DeckOfCards () {
+function DeckOfCards() {
   const cards = createCards()
   return (
     <>
-
       <div style={config.style.deck}>
-        <For each={["", "", ""]}>{(_, i) => {
-          const left = i() * 3 + "px"
-          const top = i() * 3 + "px"
-          const position = "absolute"
-          return <div style={{
-            ...config.style.back,
-            top, left, position,
-            border: "1px solid white",
-            "border-radius": "3px",
-          }} />
-        }
-        }</For>
+        <For each={["", "", ""]}>
+          {(_, i) => {
+            const left = i() * 3 + "px"
+            const top = i() * 3 + "px"
+            const position = "absolute"
+            return (
+              <div
+                style={{
+                  ...config.style.back,
+                  top,
+                  left,
+                  position,
+                  border: "1px solid white",
+                  "border-radius": "3px",
+                }}
+              />
+            )
+          }}
+        </For>
       </div>
-
     </>
   )
 }
 
-function Hand (props) {
+function Hand(props) {
   const [cards, setCards] = createSignal(props.cards)
   return (
     <>
       <Stack direction="row" spacing={1}>
-        <For each={cards()}>{(card) => <>
-          <PlayingCard text={card} clickable></PlayingCard>
-        </>}</For>
+        <For each={cards()}>
+          {(card) => (
+            <>
+              <PlayingCard text={card} clickable></PlayingCard>
+            </>
+          )}
+        </For>
       </Stack>
     </>
   )
@@ -82,8 +111,7 @@ function Hand (props) {
 
 let zIndex = 1
 
-function PlayingCard (props) {
-
+function PlayingCard(props) {
   const [down, setDown] = createSignal(props.down)
   const [z, setZ] = createSignal(1)
   const [style, setStyle] = createSignal("")
@@ -97,25 +125,30 @@ function PlayingCard (props) {
     setStyle({ ...config.style.card, ...props.style, color, "z-index": z() })
   })
 
-
   return (
-    <div onClick={() => {
-      if (!props.clickable) return
-      setDown(!down())
-      setZ(++zIndex)
-    }}>
-      <Card >
-        <Show when={!down()} fallback={<div style={{ ...style(), ...config.style.back }}></div>}>
+    <div
+      onClick={() => {
+        if (!props.clickable) return
+        setDown(!down())
+        setZ(++zIndex)
+      }}
+    >
+      <Card>
+        <Show
+          when={!down()}
+          fallback={<div style={{ ...style(), ...config.style.back }}></div>}
+        >
           <div style={style()}>
             <div>{value}</div>
-            <div style={{
-              ...config.style.suit,
-              "background-image": `url(/dist/${config.suits[suit]}.png)`
-            }}></div>
+            <div
+              style={{
+                ...config.style.suit,
+                "background-image": `url(/dist/${config.suits[suit]}.png)`,
+              }}
+            ></div>
           </div>
         </Show>
       </Card>
-
     </div>
   )
 }
