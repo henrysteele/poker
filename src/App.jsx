@@ -54,7 +54,8 @@ function DeckOfCards () {
           const top = i() * 3 + "px"
           const position = "absolute"
           return <div style={{
-            ...config.style.back, top, left, position,
+            ...config.style.back,
+            top, left, position,
             border: "1px solid white",
             "border-radius": "3px",
           }} />
