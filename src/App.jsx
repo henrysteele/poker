@@ -1,5 +1,5 @@
 import { createCards, dealCards, bestHand, getRank } from "./cards"
-import { For, createSignal, createEffect } from "solid-js"
+import { For, createSignal, createEffect, onMount } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions } from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
 import config from "./config"
@@ -125,6 +125,12 @@ function PlayingCard (props) {
 
   createEffect(() => {
     setStyle({ color, "z-index": z() })
+  })
+
+  onMount(() => {
+    setTimeout(() => {
+      setDown(true)
+    }, 5000 + Math.random() * 5000)
   })
 
   return (
