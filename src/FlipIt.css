@@ -1,0 +1,59 @@
+.cards {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    perspective: 1000px;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+}
+
+.cards__single {
+    display: flex;
+    flex-direction: column;
+    -webkit-transition: transform 0.6s;
+    transform-style: preserve-3d;
+    transition: 0.5s;
+    -webkit-transition: 0.5s;
+    position: relative;
+    transition: transform 0.6s;
+    -webkit-transition: transform 0.6s;
+}
+
+.cards__single.flip {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+}
+
+.cards__front,
+.cards__back {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.cards__front {
+    transform: rotateX(0deg);
+    -webkit-transform: rotateX(0deg);
+}
+
+.cards__back {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    position: absolute;
+}
+
+
+@media (min-width: 768px) {
+    .cards {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-content: center;
+        position: relative;
+        perspective: 1000px;
+        align-items: stretch;
+    }
+
+}

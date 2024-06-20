@@ -1,9 +1,10 @@
 import { createCards, dealCards, bestHand, getRank } from "./cards"
 import { For, createSignal, createEffect } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions } from "@suid/material"
+import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
 import config from "./config"
 
-function App() {
+function App () {
   const names = ["Henry", "Dork", "Dumby"]
   const cards = createCards()
   const hands = dealCards(cards, names)
@@ -24,12 +25,13 @@ function App() {
   )
 }
 
-function Profile(props) {
+function Profile (props) {
+  const peeps = "blob catwoman dr.strange harleyquinn hulk iceman joker mummy penguin poisonivy riddler scarecrow twoface venom".split(" ")
   const src =
-    props.src ||
-    `https://randomuser.me/api/portraits/lego/${Math.floor(
-      Math.random() * 10
-    )}.jpg`
+    props.src
+      || props.name == "dealer"
+      ? "./dist/peeps/dealer.png"
+      : `./dist/peeps/${peeps[Math.floor(Math.random() * peeps.length)]}.png`
   const style = {
     ...config.style.profile.image,
     ...props.style,
@@ -46,7 +48,7 @@ function Profile(props) {
 
 const Dealer = () => <Player name="dealer" />
 
-function Player(props) {
+function Player (props) {
   const actions =
     props.name == "dealer" ? <DeckOfCards /> : <Hand cards={props.cards} />
   return (
@@ -63,7 +65,7 @@ function Player(props) {
   )
 }
 
-function DeckOfCards() {
+function DeckOfCards () {
   const cards = createCards()
   return (
     <>
@@ -92,7 +94,7 @@ function DeckOfCards() {
   )
 }
 
-function Hand(props) {
+function Hand (props) {
   const [cards, setCards] = createSignal(props.cards)
   return (
     <>
@@ -111,7 +113,7 @@ function Hand(props) {
 
 let zIndex = 1
 
-function PlayingCard(props) {
+function PlayingCard (props) {
   const [down, setDown] = createSignal(props.down)
   const [z, setZ] = createSignal(1)
   const [style, setStyle] = createSignal("")
@@ -122,7 +124,7 @@ function PlayingCard(props) {
   const color = config.color[suit]
 
   createEffect(() => {
-    setStyle({ ...config.style.card, ...props.style, color, "z-index": z() })
+    setStyle({ color, "z-index": z() })
   })
 
   return (
@@ -133,22 +135,26 @@ function PlayingCard(props) {
         setZ(++zIndex)
       }}
     >
-      <Card>
-        <Show
-          when={!down()}
-          fallback={<div style={{ ...style(), ...config.style.back }}></div>}
-        >
-          <div style={style()}>
-            <div>{value}</div>
-            <div
-              style={{
-                ...config.style.suit,
-                "background-image": `url(/dist/${config.suits[suit]}.png)`,
-              }}
-            ></div>
-          </div>
-        </Show>
-      </Card>
+      <FlipIt flip={down()}>
+        <FlipFront>
+          <Card>
+            <div style={style()}>
+              <div>{value}</div>
+              <div
+                style={{
+                  ...config.style.suit,
+                  "background-image": `url(/dist/${config.suits[suit]}.png)`,
+                }}
+              ></div>
+            </div>
+          </Card>
+        </FlipFront>
+        <FlipBack>
+          <Card>
+            <div style={{ ...style(), ...config.style.back }}></div>
+          </Card>
+        </FlipBack>
+      </FlipIt>
     </div>
   )
 }
