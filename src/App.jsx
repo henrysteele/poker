@@ -2,21 +2,45 @@ import { createCards, dealCards, bestHand, getRank } from "./cards"
 import { For, createSignal, createEffect, onMount } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
+import { Money } from "./Money"
 import config from "./config"
 
+
 function App () {
+  const [total, setTotal] = createSignal(0)
   const names = ["Henry", "Dork", "Dumby"]
   const cards = createCards()
   const hands = dealCards(cards, names)
   getRank(hands[0], hands)
+
+
+  setInterval(() => {
+    setTotal(total() + Math.random() * 100)
+  }, 500)
+
   return (
     <>
       <Container>
-        <Dealer />
+
+        <Dealer>
+          <Money total={total()} />
+          <Stack direction="row" spacing={1}>
+            <DeckOfCards />
+            <DeckOfCards discard={true} />
+          </Stack>
+          <Stack direction="row" spacing={1}>
+            <Hand cards={"2♠,3♥,4♣,5♦,6♣".split(",")} />
+            <Hand cards={"A♠,A♥,A♣,K♦,K♠".split(",")} />
+          </Stack>
+
+        </Dealer>
+
         <For each={hands}>
           {(hand) => (
             <>
-              <Player name={hand.name} cards={hand.cards} />
+              <Player name={hand.name}>
+                <Hand cards={hand.cards} />
+              </Player>
             </>
           )}
         </For>
@@ -46,48 +70,50 @@ function Profile (props) {
   )
 }
 
-const Dealer = () => <Player name="dealer" />
+const Dealer = (props) => <Player name="dealer" >{props.children}</Player>
 
 function Player (props) {
-  const actions =
-    props.name == "dealer" ? <DeckOfCards /> : <Hand cards={props.cards} />
+
   return <Box sx={{ margin: "1em", display: "inline-block" }}>
     <Card sx={{ padding: "1em", width: "fit-content" }}>
       <CardContent>
         <Profile name={props.name} />
       </CardContent>
-      <CardActions>{actions} </CardActions>
+      <CardActions>{props.children} </CardActions>
     </Card>
   </Box>
 
 }
 
-function DeckOfCards () {
-  const cards = createCards()
+function DeckOfCards (props) {
+  const [cards, setCards] = createSignal(props.cards || createCards())
   return (
-    <>
-      <div style={config.style.deck}>
-        <For each={["", "", ""]}>
-          {(_, i) => {
-            const left = i() * 3 + "px"
-            const top = i() * 3 + "px"
-            const position = "absolute"
-            return (
-              <div
-                style={{
-                  ...config.style.back,
-                  top,
-                  left,
-                  position,
-                  border: "1px solid white",
-                  "border-radius": "3px",
-                }}
-              />
-            )
+    <Box>
+      <div style={{ position: "relative", height: "100px", }}>
+        <For each={cards()}>
+          {(card, i) => {
+            let style
+            if (props.discard) {
+              style = {
+                position: "absolute",
+                transform: `rotate(${-33 + Math.round(Math.random() * 66)}deg)`,
+                top: `${Math.floor(Math.random() * 20)}px`,
+                left: `${Math.floor(Math.random() * 20)}px`
+              }
+            } else {
+              style = {
+                position: "absolute",
+                top: `${Math.min(15, i() * 3)}px`,
+                left: `${Math.min(15, i() * 3)}px`
+              }
+            }
+            return <div style={style}>
+              <PlayingCard text={card} down={!props.discard}></PlayingCard>
+            </div>
           }}
         </For>
       </div>
-    </>
+    </Box>
   )
 }
 
@@ -126,7 +152,7 @@ function PlayingCard (props) {
 
   onMount(() => {
     setTimeout(() => {
-      setDown(true)
+      setDown(props.down ?? true)
     }, 5000 + Math.random() * 5000)
   })
 
@@ -146,7 +172,7 @@ function PlayingCard (props) {
               <div
                 style={{
                   ...config.style.suit,
-                  "background-image": `url(/dist/${config.suits[suit]}.png)`,
+                  "background-image": `url(/dist/cards/${config.suits[suit]}.png)`,
                 }}
               ></div>
             </div>

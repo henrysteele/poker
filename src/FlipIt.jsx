@@ -1,4 +1,4 @@
-import "./Flipit.css"
+import "./FlipIt.css"
 
 //You can see full tutorial here
 // https://dev.to/mugas/flip-cards-with-javascript-2ad0

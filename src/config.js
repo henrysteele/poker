@@ -31,7 +31,7 @@ export default {
 			height: "40px",
 			width: "40px",
 			"background-size": "cover",
-			"background-image": `url(/dist/spades.png)`,
+			"background-image": `url(/dist/cards/spades.png)`,
 		},
 		back: {
 			width: "40px",
@@ -39,7 +39,7 @@ export default {
 			// transform: "rotateY(180deg)",
 			// transition: "transform 0.5s",
 			background: "white",
-			"background-image": "url(/dist/joker.back.jpg)",
+			"background-image": "url(/dist/cards/joker.back.jpg)",
 			"background-size": "cover",
 			"background-color": "white",
 			"backface-visibility": "hidden",
