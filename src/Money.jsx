@@ -2,26 +2,25 @@ import { For, createSignal, createEffect, onMount } from "solid-js"
 import "./Money.css"
 
 export function Money (props) {
-
-    const denominations = [5000, 1000, 50, 15, 6, 2, 1]
     const [output, setOutput] = createSignal([])
 
     createEffect(() => {
         let total = Math.round(props.total)
         let out = []
 
-        denominations.forEach((denominator) => {
-            const label = "coin coin" + denominator
-            const count = Math.floor(total / denominator)
-            for (let i = 0; i < Math.min(count, 5); i++) {
+        const denominations = [5000, 1000, 50, 15, 6, 2, 1]
+        denominations.forEach((denomination) => {
+            const label = "coin coin" + denomination
+            const count = Math.floor(total / denomination)
+            for (let i = 0; i < Math.min(count, 3); i++) {
                 const bottom = Math.random() * 2 + '%'
                 const left = Math.random() * 30 + '%'
 
                 out.push(<div class={label} style={{ bottom, left }}>
-                    <img src={`/dist/coins/${denominator}.png`} />
+                    <img src={`/dist/coins/${denomination}.png`} />
                 </div>)
             }
-            total -= count * denominator
+            total = total - count * denomination
         })
         setOutput(out)
     })

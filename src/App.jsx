@@ -8,37 +8,44 @@ import config from "./config"
 
 function App () {
   const [total, setTotal] = createSignal(0)
+  const [cards, setCards] = createSignal(createCards())
   const names = ["Henry", "Dork", "Dumby"]
-  const cards = createCards()
-  const hands = dealCards(cards, names)
+  const hands = dealCards([...cards()], names)
   getRank(hands[0], hands)
 
 
   setInterval(() => {
-    setTotal(total() + Math.random() * 100)
-  }, 500)
+    setTotal(total() + 11)
+  }, 100)
+
+  const numbers = []
+  for (let i = 1; i <= 100; i += 1) numbers.push(i)
 
   return (
     <>
       <Container>
 
-        <Dealer>
-          <Money total={total()} />
-          <Stack direction="row" spacing={1}>
-            <DeckOfCards />
-            <DeckOfCards discard={true} />
-          </Stack>
-          <Stack direction="row" spacing={1}>
-            <Hand cards={"2♠,3♥,4♣,5♦,6♣".split(",")} />
-            <Hand cards={"A♠,A♥,A♣,K♦,K♠".split(",")} />
-          </Stack>
 
+        <Grid list={numbers.map((total) => <Money total={total} />)} />
+
+        <Dealer total={total()}>
+          <Stack direction="row" spacing={2}>
+            <Stack direction="column" spacing={2} >
+              <DeckOfCards />
+              <DeckOfCards discard={true} />
+            </Stack>
+
+            <Grid list={cards().slice(0, 9).map((card) => <PlayingCard text={card} clickable />)} />
+
+          </Stack>
         </Dealer>
+
+
 
         <For each={hands}>
           {(hand) => (
             <>
-              <Player name={hand.name}>
+              <Player name={hand.name} total={7}>
                 <Hand cards={hand.cards} />
               </Player>
             </>
@@ -63,21 +70,38 @@ function Profile (props) {
   }
 
   return (
-    <>
+    <div>
       <div class="capitalize">{props.name || "anonymous"}</div>
       <div style={style}></div>
-    </>
+    </div>
   )
 }
 
-const Dealer = (props) => <Player name="dealer" >{props.children}</Player>
-
-function Player (props) {
+function Dealer (props) {
 
   return <Box sx={{ margin: "1em", display: "inline-block" }}>
     <Card sx={{ padding: "1em", width: "fit-content" }}>
       <CardContent>
-        <Profile name={props.name} />
+        <Stack direction="row">
+          <Profile name="dealer" />
+          <Money total={props.total} />
+        </Stack>
+      </CardContent>
+      <CardActions>{props.children} </CardActions>
+    </Card>
+  </Box>
+
+}
+
+function Player (props) {
+
+  return <Box sx={{ display: "inline-block" }}>
+    <Card sx={{ width: "fit-content" }}>
+      <CardContent>
+        <Stack direction="row">
+          <Profile name={props.name} />
+          <Money total={props.total} />
+        </Stack>
       </CardContent>
       <CardActions>{props.children} </CardActions>
     </Card>
@@ -88,7 +112,7 @@ function Player (props) {
 function DeckOfCards (props) {
   const [cards, setCards] = createSignal(props.cards || createCards())
   return (
-    <Box>
+    <Box sx={{ width: "70px" }}>
       <div style={{ position: "relative", height: "100px", }}>
         <For each={cards()}>
           {(card, i) => {
@@ -117,19 +141,54 @@ function DeckOfCards (props) {
   )
 }
 
+function toMatrix (list, width) {
+  width = width || Math.floor(Math.sqrt(list.length))
+  const matrix = []
+  let row = []
+  for (let [i, item] of list.entries()) {
+    row.push(item)
+    if (++i % width == 0) {
+      matrix.push(row)
+      row = []
+    }
+  }
+  return matrix
+}
+
+function Grid (props) {
+  const [rows, setRows] = createSignal(toMatrix(props.list))
+
+  return <>
+    <Stack direction="column" spacing={1}>
+      <For each={rows()}>{(row) => (<>
+        <Stack direction="row" spacing={1}>
+          <For each={row}>{(item) => <>
+            {item}
+          </>}</For>
+        </Stack>
+      </>)}
+      </For>
+    </Stack>
+  </>
+}
+
 function Hand (props) {
-  const [cards, setCards] = createSignal(props.cards)
   return (
     <>
       <Stack direction="row" spacing={1}>
-        <For each={cards()}>
-          {(card) => (
-            <>
-              <PlayingCard text={card} clickable></PlayingCard>
-            </>
-          )}
-        </For>
+        <Cards {...props} />
       </Stack>
+    </>
+  )
+}
+
+function Cards (props) {
+  const [cards, setCards] = createSignal(props.cards)
+  return (
+    <>
+      <For each={cards()}>
+        {(card) => <PlayingCard text={card} clickable></PlayingCard>}
+      </For>
     </>
   )
 }
@@ -157,34 +216,36 @@ function PlayingCard (props) {
   })
 
   return (
-    <div
-      onClick={() => {
-        if (!props.clickable) return
-        setDown(!down())
-        setZ(++zIndex)
-      }}
-    >
-      <FlipIt flip={down()}>
-        <FlipFront>
-          <Card>
-            <div style={style()}>
-              <div>{value}</div>
-              <div
-                style={{
-                  ...config.style.suit,
-                  "background-image": `url(/dist/cards/${config.suits[suit]}.png)`,
-                }}
-              ></div>
-            </div>
-          </Card>
-        </FlipFront>
-        <FlipBack>
-          <Card>
-            <div style={{ ...style(), ...config.style.back }}></div>
-          </Card>
-        </FlipBack>
-      </FlipIt>
-    </div>
+    <Box>
+      <div
+        onClick={() => {
+          if (!props.clickable) return
+          setDown(!down())
+          setZ(++zIndex)
+        }}
+      >
+        <FlipIt flip={down()}>
+          <FlipFront>
+            <Card>
+              <div style={style()}>
+                <div>{value}</div>
+                <div
+                  style={{
+                    ...config.style.suit,
+                    "background-image": `url(/dist/cards/${config.suits[suit]}.png)`,
+                  }}
+                ></div>
+              </div>
+            </Card>
+          </FlipFront>
+          <FlipBack>
+            <Card>
+              <div style={{ ...style(), ...config.style.back }}></div>
+            </Card>
+          </FlipBack>
+        </FlipIt>
+      </div>
+    </Box>
   )
 }
 

@@ -1,8 +1,8 @@
 .money {
     position: relative;
     display: block;
-    width: 200px;
-    height: 100px;
+    width: 150px;
+    height: 130px;
     /* box-shadow: 0 0 15px rgba(0, 0, 0, .5); */
     align-items: center;
 }
@@ -34,7 +34,7 @@
 
 .coin50 img,
 .coin1000 img {
-    height: 60px
+    height: 60px;
 }
 
 .coin100 img {
@@ -53,5 +53,5 @@
 
 .coin1000 img,
 .coin5000 img {
-    margin-bottom: 15px
+    margin-bottom: 15px;
 }
