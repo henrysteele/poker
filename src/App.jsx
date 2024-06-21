@@ -1,22 +1,48 @@
-import { createCards, dealCards, bestHand, getRank } from "./cards"
+import { createCards, dealCards, bestHand, getRank, shuffle } from "./cards"
 import { For, createSignal, createEffect, onMount } from "solid-js"
-import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
+import {
+  Box,
+  Card,
+  Stack,
+  CardContent,
+  CardActions,
+  Container,
+} from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
 import config from "./config"
 
-function App () {
-  const names = ["Henry", "Dork", "Dumby"]
-  const cards = createCards()
-  const hands = dealCards(cards, names)
-  getRank(hands[0], hands)
+const deck = shuffle(createCards())
+const discards = []
+const tableOfCards = []
+const names = ["Henry", "Dork", "Dumby"]
+const players = names.map((name) => {
+  return { name, cards: [] }
+})
+const n = 9
+
+function startGame() {
+  for (let i = 0; i < 5; i++) {
+    for (let player of players) {
+      player.cards.push(deck.pop())
+    }
+  }
+
+  discards.push(deck.pop())
+  for (let i = 0; i < n; i++) {
+    tableOfCards.push(deck.pop())
+  }
+  console.log({ startGame: tableOfCards, discards, players, deck })
+}
+function App() {
+  startGame()
   return (
     <>
       <Container>
         <Dealer />
-        <For each={hands}>
-          {(hand) => (
+        <For each={players}>
+          {(player) => (
             <>
-              <Player name={hand.name} cards={hand.cards} />
+              <Player name={player.name} cards={player.cards} />
             </>
           )}
         </For>
@@ -25,44 +51,52 @@ function App () {
   )
 }
 
-function Profile (props) {
-  const peeps = "blob catwoman dr.strange harleyquinn hulk iceman joker mummy penguin poisonivy riddler scarecrow twoface venom".split(" ")
-  const src =
-    props.src
-      || props.name == "dealer"
+function Profile(props) {
+  const peeps =
+    "blob catwoman dr.strange harleyquinn hulk iceman joker mummy penguin poisonivy riddler scarecrow twoface venom".split(
+      " "
+    )
+  let src =
+    props.src || props.name == "dealer"
       ? "./dist/peeps/dealer.png"
       : `./dist/peeps/${peeps[Math.floor(Math.random() * peeps.length)]}.png`
-  const style = {
+  let style = {
     ...config.style.profile.image,
     ...props.style,
     background: `url(${src})`,
   }
 
+  function onClick() {
+    newPeep = peeps[Math.floor(Math.random() * peeps.length)]
+    console.log("clicked")
+  }
+
   return (
-    <>
+    <div onClick={onClick}>
       <div class="capitalize">{props.name || "anonymous"}</div>
       <div style={style}></div>
-    </>
+    </div>
   )
 }
 
 const Dealer = () => <Player name="dealer" />
 
-function Player (props) {
+function Player(props) {
   const actions =
     props.name == "dealer" ? <DeckOfCards /> : <Hand cards={props.cards} />
-  return <Box sx={{ margin: "1em", display: "inline-block" }}>
-    <Card sx={{ padding: "1em", width: "fit-content" }}>
-      <CardContent>
-        <Profile name={props.name} />
-      </CardContent>
-      <CardActions>{actions} </CardActions>
-    </Card>
-  </Box>
-
+  return (
+    <Box sx={{ margin: "1em", display: "inline-block" }}>
+      <Card sx={{ padding: "1em", width: "fit-content" }}>
+        <CardContent>
+          <Profile name={props.name} />
+        </CardContent>
+        <CardActions>{actions} </CardActions>
+      </Card>
+    </Box>
+  )
 }
 
-function DeckOfCards () {
+function DeckOfCards() {
   const cards = createCards()
   return (
     <>
@@ -91,7 +125,7 @@ function DeckOfCards () {
   )
 }
 
-function Hand (props) {
+function Hand(props) {
   const [cards, setCards] = createSignal(props.cards)
   return (
     <>
@@ -110,7 +144,7 @@ function Hand (props) {
 
 let zIndex = 1
 
-function PlayingCard (props) {
+function PlayingCard(props) {
   const [down, setDown] = createSignal(props.down)
   const [z, setZ] = createSignal(1)
   const [style, setStyle] = createSignal("")
