@@ -14,7 +14,7 @@ export function Money (props) {
             const count = Math.floor(total / denomination)
             for (let i = 0; i < Math.min(count, 3); i++) {
                 const bottom = Math.random() * 2 + '%'
-                const left = Math.random() * 30 + '%'
+                const left = (Math.random() * 30) + '%'
 
                 out.push(<div class={label} style={{ bottom, left }}>
                     <img src={`/dist/coins/${denomination}.png`} />

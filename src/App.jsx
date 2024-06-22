@@ -16,17 +16,13 @@ function App () {
 
   setInterval(() => {
     setTotal(total() + 11)
-  }, 100)
+  }, 3000)
 
-  const numbers = []
-  for (let i = 1; i <= 100; i += 1) numbers.push(i)
+
 
   return (
     <>
       <Container>
-
-
-        <Grid list={numbers.map((total) => <Money total={total} />)} />
 
         <Dealer total={total()}>
           <Stack direction="row" spacing={2}>
@@ -45,7 +41,7 @@ function App () {
         <For each={hands}>
           {(hand) => (
             <>
-              <Player name={hand.name} total={7}>
+              <Player name={hand.name} total={total() / 10}>
                 <Hand cards={hand.cards} />
               </Player>
             </>
