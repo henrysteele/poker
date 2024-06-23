@@ -107,3 +107,8 @@ div.card.down .content {
 .capitalize {
   text-transform: capitalize;
 }
+
+.mirror {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}

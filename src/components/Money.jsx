@@ -17,7 +17,7 @@ export function Money (props) {
                 const left = (Math.random() * 30) + '%'
 
                 out.push(<div class={label} style={{ bottom, left }}>
-                    <img src={`/dist/coins/${denomination}.png`} />
+                    <img class={Math.random() > .5 ? "mirror" : ""} src={`/dist/coins/${denomination}.png`} />
                 </div>)
             }
             total = total - count * denomination

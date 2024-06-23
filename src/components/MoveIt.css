@@ -1,0 +1,15 @@
+.moveit {
+  /* animation: spin-animation 0.5s infinite; */
+  display: inline-block;
+  transition: left .5s, top .5s;
+}
+
+@keyframes spin-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(359deg);
+  }
+}

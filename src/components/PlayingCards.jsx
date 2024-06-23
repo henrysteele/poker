@@ -2,6 +2,7 @@ import { createCards, dealCards, bestHand, getRank } from "./cards"
 import { For, createSignal, createEffect, onMount } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
+import { MoveIt } from "./MoveIt"
 import config from "./config"
 
 
@@ -96,11 +97,13 @@ export function PlayingCard (props) {
     const [down, setDown] = createSignal(props.down)
     const [z, setZ] = createSignal(props.zindex || 1)
     const [style, setStyle] = createSignal("")
+    const [pos, setPos] = createSignal()
 
     const text = props.text?.trim() || ""
     const value = text.slice(0, text.length - 1)
     const suit = text.slice(-1).toLowerCase()
     const color = config.color[suit]
+
 
     createEffect(() => {
         setStyle({ color, "z-index": z() })
@@ -111,30 +114,37 @@ export function PlayingCard (props) {
             <div
                 onClick={() => {
                     if (!props.clickable) return
+
                     setDown(!down())
                     setZ(++zIndex)
+
+                    const top = Math.round(Math.random() * 100) + "px"
+                    const left = Math.round(Math.random() * 100) + "px"
+                    setPos({ top, left })
                 }}
             >
-                <FlipIt flip={down()}>
-                    <FlipFront>
-                        <Card>
-                            <div style={style()}>
-                                <div>{value}</div>
-                                <div
-                                    style={{
-                                        ...config.style.suit,
-                                        "background-image": `url(/dist/cards/${config.suits[suit]}.png)`,
-                                    }}
-                                ></div>
-                            </div>
-                        </Card>
-                    </FlipFront>
-                    <FlipBack>
-                        <Card>
-                            <div style={{ ...style(), ...config.style.back }}></div>
-                        </Card>
-                    </FlipBack>
-                </FlipIt>
+                <MoveIt to={pos()}>
+                    <FlipIt flip={down()}>
+                        <FlipFront>
+                            <Card>
+                                <div style={style()}>
+                                    <div>{value}</div>
+                                    <div
+                                        style={{
+                                            ...config.style.suit,
+                                            "background-image": `url(/dist/cards/${config.suits[suit]}.png)`,
+                                        }}
+                                    ></div>
+                                </div>
+                            </Card>
+                        </FlipFront>
+                        <FlipBack>
+                            <Card>
+                                <div style={{ ...style(), ...config.style.back }}></div>
+                            </Card>
+                        </FlipBack>
+                    </FlipIt>
+                </MoveIt>
             </div>
         </Box>
     )
