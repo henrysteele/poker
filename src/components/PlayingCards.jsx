@@ -2,17 +2,16 @@ import { createCards, dealCards, bestHand, getRank } from "./cards"
 import { For, createSignal, createEffect, onMount } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
-import { MoveIt } from "./MoveIt"
+import { Selectable } from "./Selectable"
+
 import config from "./config"
 
 
-
 export function DeckOfCards (props) {
-    const [cards, setCards] = createSignal(props.cards || createCards())
     return (
-        <Box sx={{ width: "70px" }}>
+        <Box id="deck" sx={{ width: "70px" }}>
             <div style={{ position: "relative", height: "100px", }}>
-                <For each={cards()}>
+                <For each={props.cards}>
                     {(card, i) => {
                         let style
                         if (props.discard) {
@@ -30,7 +29,7 @@ export function DeckOfCards (props) {
                             }
                         }
                         return <div style={style}>
-                            <PlayingCard text={card} down={!props.discard}></PlayingCard>
+                            <PlayingCard id={card} down={!props.discard}></PlayingCard>
                         </div>
                     }}
                 </For>
@@ -40,6 +39,7 @@ export function DeckOfCards (props) {
 }
 
 function toMatrix (list, width) {
+    if (!list) return [[]]
     width = width || Math.floor(Math.sqrt(list.length))
     const matrix = []
     let row = []
@@ -56,7 +56,7 @@ function toMatrix (list, width) {
 export function Grid (props) {
     const [rows, setRows] = createSignal(toMatrix(props.list))
 
-    return <>
+    return <div id="Grid">
         <Stack direction="column" spacing={1}>
             <For each={rows()}>{(row) => (<>
                 <Stack direction="row" spacing={1}>
@@ -67,16 +67,16 @@ export function Grid (props) {
             </>)}
             </For>
         </Stack>
-    </>
+    </div>
 }
 
 export function Hand (props) {
     return (
-        <>
+        <div id="hand">
             <Stack direction="row" spacing={1}>
                 <Cards {...props} />
             </Stack>
-        </>
+        </div>
     )
 }
 
@@ -85,67 +85,49 @@ export function Cards (props) {
     return (
         <>
             <For each={cards()}>
-                {(card) => <PlayingCard text={card} clickable></PlayingCard>}
+                {(card) => <PlayingCard id={card} clickable></PlayingCard>}
             </For>
         </>
     )
 }
 
-let zIndex = 1
 
 export function PlayingCard (props) {
-    const [down, setDown] = createSignal(props.down)
-    const [z, setZ] = createSignal(props.zindex || 1)
     const [style, setStyle] = createSignal("")
-    const [pos, setPos] = createSignal()
 
-    const text = props.text?.trim() || ""
-    const value = text.slice(0, text.length - 1)
-    const suit = text.slice(-1).toLowerCase()
+    const id = props.id?.trim() || ""
+    const value = id.slice(0, id.length - 1)
+    const suit = id.slice(-1).toLowerCase()
     const color = config.color[suit]
 
-
     createEffect(() => {
-        setStyle({ color, "z-index": z() })
+        setStyle({ color })
     })
 
     return (
         <Box>
-            <div
-                onClick={() => {
-                    if (!props.clickable) return
-
-                    setDown(!down())
-                    setZ(++zIndex)
-
-                    const top = Math.round(Math.random() * 100) + "px"
-                    const left = Math.round(Math.random() * 100) + "px"
-                    setPos({ top, left })
-                }}
-            >
-                <MoveIt to={pos()}>
-                    <FlipIt flip={down()}>
-                        <FlipFront>
-                            <Card>
-                                <div style={style()}>
-                                    <div>{value}</div>
-                                    <div
-                                        style={{
-                                            ...config.style.suit,
-                                            "background-image": `url(/dist/cards/${config.suits[suit]}.png)`,
-                                        }}
-                                    ></div>
-                                </div>
-                            </Card>
-                        </FlipFront>
-                        <FlipBack>
-                            <Card>
-                                <div style={{ ...style(), ...config.style.back }}></div>
-                            </Card>
-                        </FlipBack>
-                    </FlipIt>
-                </MoveIt>
-            </div>
+            <Selectable id={props.id?.trim()}>
+                <FlipIt flip={props.down}>
+                    <FlipFront>
+                        <Card>
+                            <div style={style()}>
+                                <div>{value}</div>
+                                <div
+                                    style={{
+                                        ...config.style.suit,
+                                        "background-image": `url(/dist/cards/${config.suits[suit]}.png)`,
+                                    }}
+                                ></div>
+                            </div>
+                        </Card>
+                    </FlipFront>
+                    <FlipBack>
+                        <Card>
+                            <div style={{ ...style(), ...config.style.back }}></div>
+                        </Card>
+                    </FlipBack>
+                </FlipIt>
+            </Selectable>
         </Box>
     )
 }

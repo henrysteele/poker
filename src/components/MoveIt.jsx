@@ -1,24 +1,39 @@
 
 import { For, createSignal, createEffect, onMount } from "solid-js"
-import "./MoveIt.css"
+import $ from "jquery"
+import config from "./config"
+
+$.fn.animateRotate = function (angle, duration, easing, complete) {
+    var args = $.speed(duration, easing, complete);
+    var step = args.step;
+    return this.each(function (i, e) {
+        args.complete = $.proxy(args.complete, e);
+        args.step = function (now) {
+            $.style(e, 'transform', 'rotate(' + now + 'deg)');
+            if (step) return step.apply(e, arguments);
+        };
+
+        $({ deg: 0 }).animate({ deg: angle }, args);
+    });
+};
+
 
 export function MoveIt (props) {
     let ref
-    const [style, setStyle] = createSignal("")
 
     createEffect(() => {
         if (!props.to) return
 
-        const top = props.to.top;
-        const left = props.to.left;
-        const position = "absolute"
-        const transition = "left 2s ease, top 2s ease"
+        const speed = config.card?.speed || props.speed || 400
+        const [top, left] = props.to
 
-        ref.animate({ top, left, position, transition }, { duration: 2000 })
+        $(ref).css({ position: "absolute" })
+            .animateRotate(360)
+            .animate({ top, left }, speed)
+
     })
 
-
-    return <div class={"moveit"} ref={ref} >
+    return <div ref={ref} >
         {props.children}
     </div>
 }
