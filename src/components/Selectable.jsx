@@ -11,7 +11,7 @@ export function Selectable (props) {
 
     const sx = {
         transform: "rotate(-15deg)",
-        "margin-top": "-10px"
+
     }
 
     return <div id={props.id} style={selected() ? sx : ""}

@@ -54,14 +54,18 @@ function toMatrix (list, width) {
 }
 
 export function Grid (props) {
-    const [rows, setRows] = createSignal(toMatrix(props.list))
+    const [rows, setRows] = createSignal([])
+
+    createEffect(() => {
+        setRows(toMatrix(props.list))
+    })
 
     return <div id="Grid">
         <Stack direction="column" spacing={1}>
             <For each={rows()}>{(row) => (<>
                 <Stack direction="row" spacing={1}>
                     <For each={row}>{(item) => <>
-                        {item}
+                        {props.render(item)}
                     </>}</For>
                 </Stack>
             </>)}

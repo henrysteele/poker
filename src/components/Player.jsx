@@ -44,7 +44,7 @@ export function Dealer (props) {
 
 export function Player (props) {
 
-    return <Box sx={{ display: "inline-block" }}>
+    return <Box sx={{ display: "inline-block", margin: "1em" }}>
         <Card sx={{ width: "fit-content" }}>
             <CardContent>
                 <Stack direction="row">

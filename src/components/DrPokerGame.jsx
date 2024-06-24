@@ -30,12 +30,20 @@ function swapAll (a, b) {
     accessors.forEach((access) => swapSignals(a, b, access))
 }
 
-function swapCards (list, callback) {
-    const $source = $('#' + list[0])
-    const $target = $('#' + list[1])
+function tossCards (list, callback, i = 0) {
+    // list can have 2 or more cards, cards will be tossed forward
 
-    toss(list[0], $target.offset())
-    toss(list[1], $source.offset(), callback)
+    const len = list.length
+    if (len < 2) return
+
+    if (i < len - 1) {
+        const id = list[i]
+        const pos = $('#' + list[i + 1]).offset()
+        toss(id, pos, () => {
+            tossCards(list, callback, i + 1)
+        })
+    }
+    if (i == len - 1) toss(list[list.length - 1], $('#' + list[0]).offset(), callback)
 }
 
 export function DrPokerGame (props) {
@@ -66,12 +74,13 @@ export function DrPokerGame (props) {
         if (ids.length == 2) {
             console.log({ selected: ids })
 
-            swapCards(ids, () => {
+            tossCards(ids, () => {
                 swapAll(...ids)
                 setSelectedIds([])
             })
         }
     })
+
 
     return (<div>
 
@@ -81,9 +90,7 @@ export function DrPokerGame (props) {
                     <DeckOfCards cards={deck()} />
                     <DeckOfCards cards={discards()} />
                 </Stack>
-
-                <Grid list={grid().map((card) => <PlayingCard id={card} down={false} />)} />
-
+                <Grid list={grid()} render={(id) => <PlayingCard id={id} down={false} />} />
             </Stack>
         </Dealer>
 
@@ -128,10 +135,10 @@ $.fn.animateRotate = function (angle, duration, easing, complete) {
 function toss (id, pos, callback) {
     const $id = $('#' + id)
     const $clone = $id.clone()
-    $id.parent().append($clone)
     $id.css('opacity', 0)
+    $id.parent().append($clone)
 
-    const speed = config.card?.speed || 600
+    const speed = config.card?.speed || 400
     $clone
         .animateRotate(360 * 2)
         .css({ position: "absolute" })
