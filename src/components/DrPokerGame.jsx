@@ -50,10 +50,8 @@ function swapCards (list, callback) {
     const $source = $('#' + list[0])
     const $target = $('#' + list[1])
 
-    toss(list[0], $target.offset(), () => {
-        toss(list[1], $source.offset(), callback)
-    })
-
+    toss(list[0], $target.offset())
+    toss(list[1], $source.offset(), callback)
 }
 
 export function DrPokerGame (props) {
@@ -84,7 +82,7 @@ export function DrPokerGame (props) {
         if (ids.length == 2) {
             console.log({ selected: ids })
 
-            swapCards(ids, () => {
+            tossCards(ids, () => {
                 swapAll(...ids)
                 setSelectedIds([])
             })
@@ -142,12 +140,15 @@ $.fn.animateRotate = function (angle, duration, easing, complete) {
     });
 };
 
-function toss (id, pos, callback) {
+function toss (id, pos, callback, volume) {
     const $doc = $('#root')
     const $id = $('#' + id)
+    const snd = $id.find('audio')[0]
     const $clone = $id.clone()
     $id.css('opacity', 0)
 
+    snd.volume = (volume || .2)
+    snd.play()
     const speed = config.card?.speed || 400
     $clone
         .css({ position: "absolute", ...$id.offset() })

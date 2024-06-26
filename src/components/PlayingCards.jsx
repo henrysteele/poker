@@ -116,6 +116,7 @@ export function PlayingCard (props) {
     return (
         <Box >
             <Selectable id={props.id?.trim()} style={props.style}>
+                <audio src={props.audio || "/dist/audio/card-sounds-35956.mp3"}></audio>
                 <FlipIt flip={props.down}>
                     <FlipFront>
                         <Card>
