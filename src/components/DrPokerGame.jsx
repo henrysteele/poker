@@ -46,6 +46,16 @@ function tossCards (list, callback, i = 0) {
     if (i == len - 1) toss(list[list.length - 1], $('#' + list[0]).offset(), callback)
 }
 
+function swapCards (list, callback) {
+    const $source = $('#' + list[0])
+    const $target = $('#' + list[1])
+
+    toss(list[0], $target.offset(), () => {
+        toss(list[1], $source.offset(), callback)
+    })
+
+}
+
 export function DrPokerGame (props) {
 
 
@@ -74,7 +84,7 @@ export function DrPokerGame (props) {
         if (ids.length == 2) {
             console.log({ selected: ids })
 
-            tossCards(ids, () => {
+            swapCards(ids, () => {
                 swapAll(...ids)
                 setSelectedIds([])
             })
@@ -88,7 +98,7 @@ export function DrPokerGame (props) {
             <Stack direction="row" spacing={2}>
                 <Stack direction="column" spacing={2} >
                     <DeckOfCards cards={deck()} />
-                    <DeckOfCards cards={discards()} />
+                    <DeckOfCards cards={discards()} discard />
                 </Stack>
                 <Grid list={grid()} render={(id) => <PlayingCard id={id} down={false} />} />
             </Stack>
@@ -133,22 +143,22 @@ $.fn.animateRotate = function (angle, duration, easing, complete) {
 };
 
 function toss (id, pos, callback) {
+    const $doc = $('#root')
     const $id = $('#' + id)
     const $clone = $id.clone()
     $id.css('opacity', 0)
-    $id.parent().append($clone)
 
     const speed = config.card?.speed || 400
     $clone
+        .css({ position: "absolute", ...$id.offset() })
+        .appendTo($doc)
         .animateRotate(360 * 2)
-        .css({ position: "absolute" })
         .animate(pos, speed,
             () => {
                 $clone.remove()
                 callback && callback()
             }
         )
-
 }
 
 

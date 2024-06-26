@@ -10,16 +10,22 @@ import config from "./config"
 export function DeckOfCards (props) {
     return (
         <Box id="deck" sx={{ width: "70px" }}>
-            <div style={{ position: "relative", height: "100px", }}>
+
+            <div style={{ position: "relative", height: "100px" }}>
+                {/* this relative position is causing cards to fly incorrectly
+
+                https://gsap.com/community/forums/topic/31814-layer-divs-on-top-of-each-other-while-maintaining-inline-flow/ */}
+
+
                 <For each={props.cards}>
                     {(card, i) => {
                         let style
                         if (props.discard) {
                             style = {
                                 position: "absolute",
-                                transform: `rotate(${-33 + Math.round(Math.random() * 66)}deg)`,
-                                top: `${Math.floor(Math.random() * 20)}px`,
-                                left: `${Math.floor(Math.random() * 20)}px`
+                                transform: `rotate(${-25 + Math.round(Math.random() * 50)}deg)`,
+                                top: `${Math.floor(Math.random() * 15)}px`,
+                                left: `${Math.floor(Math.random() * 15)}px`
                             }
                         } else {
                             style = {
@@ -28,12 +34,11 @@ export function DeckOfCards (props) {
                                 left: `${Math.min(15, i() * 3)}px`
                             }
                         }
-                        return <div style={style}>
-                            <PlayingCard id={card} down={!props.discard}></PlayingCard>
-                        </div>
+                        return <PlayingCard id={card} style={style} down={!props.discard}></PlayingCard>
                     }}
                 </For>
             </div>
+
         </Box>
     )
 }
@@ -109,8 +114,8 @@ export function PlayingCard (props) {
     })
 
     return (
-        <Box>
-            <Selectable id={props.id?.trim()}>
+        <Box >
+            <Selectable id={props.id?.trim()} style={props.style}>
                 <FlipIt flip={props.down}>
                     <FlipFront>
                         <Card>

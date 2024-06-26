@@ -10,11 +10,11 @@ export function Selectable (props) {
     })
 
     const sx = {
+        ...props.style,
         transform: "rotate(-15deg)",
-
     }
 
-    return <div id={props.id} style={selected() ? sx : ""}
+    return <div id={props.id} style={selected() ? sx : props.style}
         onClick={() => {
             if (selected()) setSelectedIds(selectedIds().filter((id) => id != props.id)) // remove
             else setSelectedIds([...new Set([...selectedIds(), props.id])]) // add
