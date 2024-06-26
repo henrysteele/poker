@@ -1,8 +1,8 @@
 import { For, createSignal, createEffect, onMount } from "solid-js"
-import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
+import { Box, Card, Stack, CardContent, CardActions, Container, Button } from "@suid/material"
 import $ from "jquery"
 import config from "./config"
-import { createCards, dealCards, bestHand, getRank } from "./cards"
+import { createCards, bestHand, getRank } from "./cards"
 import { selectedIds, setSelectedIds } from "./Selectable"
 import { Player, Dealer } from "./Player"
 import { PlayingCard, DeckOfCards, Grid, Hand } from "./PlayingCards"
@@ -11,6 +11,12 @@ export const [deck, setDeck] = createSignal([]) //[ id, ... ]
 export const [discards, setDiscards] = createSignal([]) // [ id, ...]
 export const [players, setPlayers] = createSignal([]) // [ { name, cards: [] }, ...]
 export const [grid, setGrid] = createSignal([]) // [id x 9]
+
+
+/**
+ *
+ * refresh, deal, nextplayer, bet
+ */
 
 
 function swapSignals (a, b, accessors) {
@@ -54,14 +60,38 @@ function swapCards (list, callback) {
     toss(list[1], $source.offset(), callback)
 }
 
+function delay (time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
+
+function dealCards () {
+    const peeps = [...players()]
+    const cards = [...deck()]
+    let wait = 0
+    for (let i = 0; i < 5; i++) {
+        peeps.forEach((player) => {
+            setTimeout(() => {
+                const card = cards.pop()
+                toss(card, $(`#${player.name}-hand`).offset(), () => {
+                    player.cards.push(card)
+                    setPlayers(structuredClone(peeps))
+                })
+            }, wait += 600)
+        })
+    }
+    setDeck(cards)
+}
+
 export function DrPokerGame (props) {
-
-
     onMount(() => {
         const cards = createCards()
         const names = props.names || ["Henry", "Dork", "Dumby"]
         const people = names.map((name) => {
-            return { name, cards: [cards.pop(), cards.pop(), cards.pop(), cards.pop(), cards.pop(),] }
+            return {
+                name,
+                // cards: [cards.pop(), cards.pop(), cards.pop(), cards.pop(), cards.pop(),]
+                cards: []
+            }
         })
         setPlayers(people)
         setDiscards([cards.pop()])
@@ -70,7 +100,11 @@ export function DrPokerGame (props) {
             cards.pop(), cards.pop(), cards.pop(),
             cards.pop(), cards.pop(), cards.pop(),])
         setDeck(cards)
+
+
     })
+
+
 
     const [total, setTotal] = createSignal(0)
     setInterval(() => {
@@ -93,6 +127,7 @@ export function DrPokerGame (props) {
     return (<div>
 
         <Dealer total={total()}>
+            <Button onClick={dealCards}>Deal</Button>
             <Stack direction="row" spacing={2}>
                 <Stack direction="column" spacing={2} >
                     <DeckOfCards cards={deck()} />
@@ -108,7 +143,7 @@ export function DrPokerGame (props) {
             {(player) => (
                 <>
                     <Player name={player.name} total={total() / 10}>
-                        <Hand cards={player.cards} />
+                        <Hand id={`${player.name}-hand`} cards={player.cards} />
                     </Player>
                 </>
             )}
@@ -140,15 +175,17 @@ $.fn.animateRotate = function (angle, duration, easing, complete) {
     });
 };
 
-function toss (id, pos, callback, volume) {
+
+function toss (id, pos, callback) {
+    //const snd = document.getElementById("card-sounds")
     const $doc = $('#root')
     const $id = $('#' + id)
     const snd = $id.find('audio')[0]
     const $clone = $id.clone()
     $id.css('opacity', 0)
 
-    snd.volume = (volume || .2)
-    snd.play()
+    snd?.play && snd.play()
+
     const speed = config.card?.speed || 400
     $clone
         .css({ position: "absolute", ...$id.offset() })

@@ -28,7 +28,7 @@ export function Profile (props) {
 
 export function Dealer (props) {
 
-    return <Box sx={{ margin: "1em", display: "inline-block" }}>
+    return <Box id={`dealer`} sx={{ margin: "1em", display: "inline-block" }}>
         <Card sx={{ padding: "1em", width: "fit-content" }}>
             <CardContent>
                 <Stack direction="row">
@@ -44,7 +44,7 @@ export function Dealer (props) {
 
 export function Player (props) {
 
-    return <Box sx={{ display: "inline-block", margin: "1em" }}>
+    return <Box id={`player-${props.name}`} sx={{ display: "inline-block", margin: "1em" }}>
         <Card sx={{ width: "fit-content" }}>
             <CardContent>
                 <Stack direction="row">

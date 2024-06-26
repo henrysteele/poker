@@ -81,7 +81,7 @@ export function Grid (props) {
 
 export function Hand (props) {
     return (
-        <div id="hand">
+        <div id={props.id || "hand"}>
             <Stack direction="row" spacing={1}>
                 <Cards {...props} />
             </Stack>
@@ -115,8 +115,9 @@ export function PlayingCard (props) {
 
     return (
         <Box >
+
             <Selectable id={props.id?.trim()} style={props.style}>
-                <audio src={props.audio || "/dist/audio/card-sounds-35956.mp3"}></audio>
+                <audio src={config?.card?.sounds || "/dist/audio/card-sounds-35956.mp3"}></audio >
                 <FlipIt flip={props.down}>
                     <FlipFront>
                         <Card>
