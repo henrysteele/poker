@@ -12,6 +12,8 @@ export const [discards, setDiscards] = createSignal([]) // [ id, ...]
 export const [players, setPlayers] = createSignal([]) // [ { name, cards: [] }, ...]
 export const [grid, setGrid] = createSignal([]) // [id x 9]
 
+export const [visibleCards, setVisibleCards] = createSignal([]) // [id]
+
 
 /**
  *
@@ -64,23 +66,7 @@ function delay (time) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-function dealCards () {
-    const peeps = [...players()]
-    const cards = [...deck()]
-    let wait = 0
-    for (let i = 0; i < 5; i++) {
-        peeps.forEach((player) => {
-            setTimeout(() => {
-                const card = cards.pop()
-                toss(card, $(`#${player.name}-hand`).offset(), () => {
-                    player.cards.push(card)
-                    setPlayers(structuredClone(peeps))
-                })
-            }, wait += 600)
-        })
-    }
-    setDeck(cards)
-}
+
 
 export function DrPokerGame (props) {
     onMount(() => {
@@ -89,8 +75,7 @@ export function DrPokerGame (props) {
         const people = names.map((name) => {
             return {
                 name,
-                // cards: [cards.pop(), cards.pop(), cards.pop(), cards.pop(), cards.pop(),]
-                cards: []
+                cards: [cards.pop(), cards.pop(), cards.pop(), cards.pop(), cards.pop(),]
             }
         })
         setPlayers(people)
@@ -101,7 +86,15 @@ export function DrPokerGame (props) {
             cards.pop(), cards.pop(), cards.pop(),])
         setDeck(cards)
 
-
+        let wait = 2000
+        people.forEach(player => {
+            setTimeout(() => {
+                const list = visibleCards()
+                list.push(player.cards[2])
+                setVisibleCards(structuredClone(list))
+            }, wait)
+            wait += 2000
+        })
     })
 
 
@@ -127,7 +120,7 @@ export function DrPokerGame (props) {
     return (<div>
 
         <Dealer total={total()}>
-            <Button onClick={dealCards}>Deal</Button>
+
             <Stack direction="row" spacing={2}>
                 <Stack direction="column" spacing={2} >
                     <DeckOfCards cards={deck()} />

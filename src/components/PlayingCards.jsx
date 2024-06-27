@@ -3,6 +3,7 @@ import { For, createSignal, createEffect, onMount } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
 import { Selectable } from "./Selectable"
+import { visibleCards } from './DrPokerGame'
 
 import config from "./config"
 
@@ -94,7 +95,7 @@ export function Cards (props) {
     return (
         <>
             <For each={cards()}>
-                {(card) => <PlayingCard id={card} clickable></PlayingCard>}
+                {(card) => <PlayingCard id={card} ></PlayingCard>}
             </For>
         </>
     )
@@ -116,9 +117,9 @@ export function PlayingCard (props) {
     return (
         <Box >
 
-            <Selectable id={props.id?.trim()} style={props.style}>
+            <Selectable id={id} style={props.style}>
                 <audio src={config?.card?.sounds || "/dist/audio/card-sounds-35956.mp3"}></audio >
-                <FlipIt flip={props.down}>
+                <FlipIt flip={props.down ?? !visibleCards()?.includes(id)}>
                     <FlipFront>
                         <Card>
                             <div style={style()}>
