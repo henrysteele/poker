@@ -3,7 +3,7 @@ import { For, createSignal, createEffect, onMount } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
 import { Selectable } from "./Selectable"
-import { visibleCards } from './DrPokerGame'
+import { newCards } from './DrPokerGame'
 
 import config from "./config"
 
@@ -46,7 +46,7 @@ export function DeckOfCards (props) {
 
 function toMatrix (list, width) {
     if (!list) return [[]]
-    width = width || Math.floor(Math.sqrt(list.length))
+    width = width || Math.ceil(Math.sqrt(list.length))
     const matrix = []
     let row = []
     for (let [i, item] of list.entries()) {
@@ -81,29 +81,21 @@ export function Grid (props) {
 }
 
 export function Hand (props) {
+
     return (
         <div id={props.id || "hand"}>
             <Stack direction="row" spacing={1}>
-                <Cards {...props} />
+                <For each={props.cards}>
+                    {(id) => <PlayingCard id={id} down={!newCards().includes(id)}></PlayingCard>}
+                </For>
             </Stack>
         </div>
     )
 }
 
-export function Cards (props) {
-    const [cards, setCards] = createSignal(props.cards)
-    return (
-        <>
-            <For each={cards()}>
-                {(card) => <PlayingCard id={card} ></PlayingCard>}
-            </For>
-        </>
-    )
-}
-
-
 export function PlayingCard (props) {
     const [style, setStyle] = createSignal("")
+
 
     const id = props.id?.trim() || ""
     const value = id.slice(0, id.length - 1)
@@ -114,12 +106,13 @@ export function PlayingCard (props) {
         setStyle({ color })
     })
 
+
     return (
         <Box >
 
             <Selectable id={id} style={props.style}>
                 <audio src={config?.card?.sounds || "/dist/audio/card-sounds-35956.mp3"}></audio >
-                <FlipIt flip={props.down ?? !visibleCards()?.includes(id)}>
+                <FlipIt flip={props.down}>
                     <FlipFront>
                         <Card>
                             <div style={style()}>

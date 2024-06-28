@@ -12,7 +12,7 @@ export const [discards, setDiscards] = createSignal([]) // [ id, ...]
 export const [players, setPlayers] = createSignal([]) // [ { name, cards: [] }, ...]
 export const [grid, setGrid] = createSignal([]) // [id x 9]
 
-export const [visibleCards, setVisibleCards] = createSignal([]) // [id]
+export const [newCards, setNewCards] = createSignal([]) // [id]
 
 
 /**
@@ -69,33 +69,63 @@ function delay (time) {
 
 
 export function DrPokerGame (props) {
-    onMount(() => {
+
+    function init () {
         const cards = createCards()
         const names = props.names || ["Henry", "Dork", "Dumby"]
-        const people = names.map((name) => {
-            return {
-                name,
-                cards: [cards.pop(), cards.pop(), cards.pop(), cards.pop(), cards.pop(),]
-            }
+        const peeps = config.profilenames
+        const people = names.map((name, i) => {
+            const src = `/dist/peeps/${peeps[i]}.png`
+            return { name, src, cards: [] }
         })
-        setPlayers(people)
-        setDiscards([cards.pop()])
-        setGrid(
-            [cards.pop(), cards.pop(), cards.pop(),
-            cards.pop(), cards.pop(), cards.pop(),
-            cards.pop(), cards.pop(), cards.pop(),])
+        setPlayers(structuredClone(people))
+        setGrid([])
         setDeck(cards)
+        setDiscards([])
+    }
 
-        let wait = 2000
-        people.forEach(player => {
+    onMount(init)
+
+
+    function onDeal () {
+        init()
+        const cards = structuredClone(deck())
+        const wait = 200
+        let time = 0
+
+        // deal 5 cards per player
+        const peeps = structuredClone(players())
+        for (let i = 0; i < 5; i++) {
+            peeps.forEach(player => {
+                setTimeout(() => {
+                    const id = cards.pop()
+                    toss(id, $(`#${player.name}-hand`).offset())
+                    player.cards.push(id)
+                    setPlayers(structuredClone(peeps))
+                }, time)
+                time += wait
+                setDeck(cards)
+            })
+        }
+
+        // deal 9 cards to the grid
+        const nine = structuredClone(grid())
+        for (let i = 0; i < 9; i++) {
             setTimeout(() => {
-                const list = visibleCards()
-                list.push(player.cards[2])
-                setVisibleCards(structuredClone(list))
-            }, wait)
-            wait += 2000
-        })
-    })
+                const id = cards.pop()
+                toss(id, $(`#Grid`).offset())
+                nine.push(id)
+                setGrid(structuredClone(nine))
+            }, time)
+            time += wait
+            setDeck(cards)
+        }
+
+        // deal last card to discard
+        setDiscards([cards.pop()])
+
+        setDeck(cards)
+    }
 
 
 
@@ -119,6 +149,9 @@ export function DrPokerGame (props) {
 
     return (<div>
 
+        <Box>
+            <Button onClick={onDeal}>deal cards</Button>
+        </Box>
         <Dealer total={total()}>
 
             <Stack direction="row" spacing={2}>
@@ -135,7 +168,7 @@ export function DrPokerGame (props) {
         <For each={players()}>
             {(player) => (
                 <>
-                    <Player name={player.name} total={total() / 10}>
+                    <Player name={player.name} total={total() / 10} src={player.src}>
                         <Hand id={`${player.name}-hand`} cards={player.cards} />
                     </Player>
                 </>

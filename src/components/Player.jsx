@@ -6,22 +6,14 @@ import { Money } from "./Money"
 import config from "./config"
 
 export function Profile (props) {
-    const peeps = "blob catwoman dr.strange harleyquinn hulk iceman joker mummy penguin poisonivy riddler scarecrow twoface venom".split(" ")
-    const src =
-        props.src
-            || props.name == "dealer"
-            ? "./dist/peeps/dealer.png"
-            : `./dist/peeps/${peeps[Math.floor(Math.random() * peeps.length)]}.png`
-    const style = {
-        ...config.style.profile.image,
-        ...props.style,
-        background: `url(${src})`,
-    }
-
     return (
         <div>
             <div class="capitalize">{props.name || "anonymous"}</div>
-            <div style={style}></div>
+            <div style={{
+                ...config.style.profile.image,
+                ...props.style,
+                background: `url(${props.src})`,
+            }}></div>
         </div>
     )
 }
@@ -32,7 +24,7 @@ export function Dealer (props) {
         <Card sx={{ padding: "1em", width: "fit-content" }}>
             <CardContent>
                 <Stack direction="row">
-                    <Profile name="dealer" />
+                    <Profile name="dealer" src="/dist/peeps/dealer.png" />
                     <Money total={props.total} />
                 </Stack>
             </CardContent>
@@ -48,7 +40,7 @@ export function Player (props) {
         <Card sx={{ width: "fit-content" }}>
             <CardContent>
                 <Stack direction="row">
-                    <Profile name={props.name} />
+                    <Profile name={props.name} src={props.src} />
                     <Money total={props.total} />
                 </Stack>
             </CardContent>
