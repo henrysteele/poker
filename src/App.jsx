@@ -50,31 +50,52 @@ function App() {
     </>
   )
 }
+fix the first profile so that works the way we want it to work...
+let usedPeeps = []
+let peeps = (
+  "dealer blob catwoman dr.strange harleyquinn hulk iceman joker mummy " +
+  "penguin poisonivy riddler scarecrow twoface venom"
+).split(" ")
+let name = peeps[0]
+
+function getNextPeep(old) {
+  let index = peeps.indexOf(old) + 1
+  if (index >= peeps.length) index = 0
+  return peeps[index]
+}
+
+function getNewPeep(old) {
+  let newPeep = getNextPeep(old)
+  while (usedPeeps.includes(newPeep)) {
+    newPeep = getNextPeep(newPeep)
+  }
+  usedPeeps = usedPeeps.filter((text) => text != old)
+  usedPeeps.push(newPeep)
+  return newPeep
+}
 
 function Profile(props) {
-  const peeps =
-    "blob catwoman dr.strange harleyquinn hulk iceman joker mummy penguin poisonivy riddler scarecrow twoface venom".split(
-      " "
-    )
-  let src =
-    props.src || props.name == "dealer"
-      ? "./dist/peeps/dealer.png"
-      : `./dist/peeps/${peeps[Math.floor(Math.random() * peeps.length)]}.png`
-  let style = {
+  let peep = props.name || getNewPeep()
+  const [src, setSrc] = createSignal(props.src || `./dist/peeps/${peep}.png`)
+
+  console.log(usedPeeps)
+  const [style, setStyle] = createSignal({
     ...config.style.profile.image,
     ...props.style,
-    background: `url(${src})`,
-  }
+    background: `url(${src()})`,
+  })
 
   function onClick() {
-    newPeep = peeps[Math.floor(Math.random() * peeps.length)]
-    console.log("clicked")
+    peep = getNewPeep(peep)
+    setSrc(`./dist/peeps/${peep}.png`)
+    console.log({ onClick: name, usedPeeps })
+    setStyle({ ...style(), background: `url(${src()})` })
   }
 
   return (
     <div onClick={onClick}>
       <div class="capitalize">{props.name || "anonymous"}</div>
-      <div style={style}></div>
+      <div style={style()}></div>
     </div>
   )
 }
