@@ -9,32 +9,30 @@ import config from "./config"
 
 
 export function DeckOfCards (props) {
+    const [cards, setCards] = createSignal(props.cards)
+
+    createEffect(() => {
+        console.log({ DeckOfCards: props.cards })
+        setCards(props.cards)
+    })
+
     return (
         <Box id="deck" sx={{ width: "70px" }}>
-
             <div style={{ position: "relative", height: "100px" }}>
-                {/* this relative position is causing cards to fly incorrectly
-
-                https://gsap.com/community/forums/topic/31814-layer-divs-on-top-of-each-other-while-maintaining-inline-flow/ */}
-
-
-                <For each={props.cards}>
+                <For each={cards()}>
                     {(card, i) => {
-                        let style
-                        if (props.discard) {
-                            style = {
+                        let style = (props.discard) ?
+                            {
                                 position: "absolute",
                                 transform: `rotate(${-25 + Math.round(Math.random() * 50)}deg)`,
                                 top: `${Math.floor(Math.random() * 15)}px`,
                                 left: `${Math.floor(Math.random() * 15)}px`
-                            }
-                        } else {
-                            style = {
+                            } : {
                                 position: "absolute",
                                 top: `${Math.min(15, i() * 3)}px`,
                                 left: `${Math.min(15, i() * 3)}px`
                             }
-                        }
+
                         return <PlayingCard id={card} style={style} down={!props.discard}></PlayingCard>
                     }}
                 </For>
@@ -46,7 +44,7 @@ export function DeckOfCards (props) {
 
 function toMatrix (list, width) {
     if (!list) return [[]]
-    width = width || Math.ceil(Math.sqrt(list.length))
+    width = width || Math.round(Math.sqrt(list.length))
     const matrix = []
     let row = []
     for (let [i, item] of list.entries()) {
@@ -95,7 +93,6 @@ export function Hand (props) {
 
 export function PlayingCard (props) {
     const [style, setStyle] = createSignal("")
-
 
     const id = props.id?.trim() || ""
     const value = id.slice(0, id.length - 1)

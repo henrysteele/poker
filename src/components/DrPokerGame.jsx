@@ -80,8 +80,8 @@ export function DrPokerGame (props) {
         })
         setPlayers(structuredClone(people))
         setGrid([])
-        setDeck(cards)
         setDiscards([])
+        setDeck(cards)
     }
 
     onMount(init)
@@ -90,8 +90,26 @@ export function DrPokerGame (props) {
     function onDeal () {
         init()
         const cards = structuredClone(deck())
-        const wait = 200
+        const nine = [...grid()]
+        const wait = 400
         let time = 0
+
+        setDiscards([cards.pop()])
+
+        //  deal 9 cards to the grid
+        for (let i = 0; i < 9 - grid().length; i++) {
+            setTimeout(() => {
+                const id = cards.pop()
+                const pos = $(`#Grid`).offset()
+                pos.top += 100; pos.left += 50
+                toss(id, pos, () => {
+                    nine.push(id)
+                    setGrid([...nine])
+                })
+
+            }, time)
+            time += wait
+        }
 
         // deal 5 cards per player
         const peeps = structuredClone(players())
@@ -99,32 +117,23 @@ export function DrPokerGame (props) {
             peeps.forEach(player => {
                 setTimeout(() => {
                     const id = cards.pop()
-                    toss(id, $(`#${player.name}-hand`).offset())
-                    player.cards.push(id)
-                    setPlayers(structuredClone(peeps))
+                    const pos = $(`#${player.name}-hand`).offset()
+                    pos.top -= 20; pos.left += 200
+                    toss(id, pos, () => {
+                        player.cards.push(id)
+                        setPlayers(structuredClone(peeps))
+                    })
                 }, time)
                 time += wait
-                setDeck(cards)
             })
         }
 
-        // deal 9 cards to the grid
-        const nine = structuredClone(grid())
-        for (let i = 0; i < 9; i++) {
-            setTimeout(() => {
-                const id = cards.pop()
-                toss(id, $(`#Grid`).offset())
-                nine.push(id)
-                setGrid(structuredClone(nine))
-            }, time)
-            time += wait
+        setTimeout(() => {
+            setDeck([])
             setDeck(cards)
-        }
+        }, time)
 
-        // deal last card to discard
-        setDiscards([cards.pop()])
 
-        setDeck(cards)
     }
 
 
