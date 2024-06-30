@@ -1,9 +1,10 @@
 
 import { For, createSignal, createEffect, onMount } from "solid-js"
-import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
+import { Box, Card, Stack, CardContent, CardActions, Container, Button } from "@suid/material"
 
 import { Money } from "./Money"
 import config from "./config"
+import { setShowingCards, players } from "./DrPokerGame"
 
 export function Profile (props) {
     return (
@@ -35,11 +36,22 @@ export function Dealer (props) {
 
 export function Player (props) {
 
+    function onTada () {
+        const cards = []
+        players().forEach(player => {
+            cards.push(...player.cards)
+        })
+        setShowingCards(cards)
+    }
+
     return <Box id={`player-${props.name}`} sx={{ display: "inline-block", margin: "1em" }}>
         <Card sx={{ width: "fit-content" }}>
             <CardContent>
                 <Stack direction="row">
-                    <Profile name={props.name} src={props.src} />
+                    <Stack direction="column">
+                        <Profile name={props.name} src={props.src} />
+                        <Button variant="xcontained" onClick={onTada}>💥 tada!</Button>
+                    </Stack>
                     <Stack direction="column">
                         <Money total={props.total} name={props.name} />
                         <Box sx={{ margin: "1em" }}>

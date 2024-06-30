@@ -158,27 +158,22 @@ function getOffset(cards) {
 	return 0
 }
 
-export function bestHand(hands) {
+export function getRank(hand) {
 	const list = "2,3,4,5,6,7,8,9,10,J,Q,K,A".split(",")
-	for (let hand of hands) {
-		const text = hand.cards.join("")
-		let total = 0
-		for (let i = 0; i < list.length; i++) {
-			let count = text.split(list[i]).length - 1
-			let value = count && (i + 2) * Math.pow(200, count)
-			value += getOffset(hand.cards)
-			total += value
-		}
-		hand.total = total
+	const text = hand.join("")
+	let total = 0
+	for (let i = 0; i < list.length; i++) {
+		let count = text.split(list[i]).length - 1
+		let value = count && (i + 2) * Math.pow(200, count)
+		value += getOffset(hand.cards)
+		total += value
 	}
-	return hands.sort((a, b) => a.total - b.total)
+	return total
 }
 
-export function getRank(hand, hands) {
-	hand = hand.cards.join(",")
-	hands = bestHand(hands).map((item) => item.cards.join(","))
-
-	const rank = hands.indexOf(hand)
-	console.log({ getRank: rank, hand, hands })
-	return rank
+export function bestHand(hands) {
+	for (let hand of hands) {
+		hand.rank = getRank(hand)
+	}
+	return hands.sort((a, b) => a.rank - b.rank)
 }

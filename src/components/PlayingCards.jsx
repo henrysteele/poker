@@ -87,6 +87,7 @@ export function Hand (props) {
                     {(id) => <PlayingCard id={id} down={!showingCards().includes(id)}></PlayingCard>}
                 </For>
             </Stack>
+            rank: {getRank(props.cards)}
         </div>
     )
 }
