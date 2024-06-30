@@ -38,7 +38,7 @@ export function Money (props) {
 
 
     function onSlide (e) {
-        setBet(Math.round(e.target.value))
+        setBet(Math.round(e.target.value)) // ensure it's a number, not a string!
     }
 
     function onBet () {

@@ -40,10 +40,15 @@ export function Player (props) {
             <CardContent>
                 <Stack direction="row">
                     <Profile name={props.name} src={props.src} />
-                    <Money total={props.total} name={props.name} />
+                    <Stack direction="column">
+                        <Money total={props.total} name={props.name} />
+                        <Box sx={{ margin: "1em" }}>
+                            {props.children}
+                        </Box>
+                    </Stack>
                 </Stack>
             </CardContent>
-            <CardActions>{props.children} </CardActions>
+            <CardActions></CardActions>
         </Card>
     </Box>
 

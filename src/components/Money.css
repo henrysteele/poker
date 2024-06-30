@@ -1,8 +1,9 @@
 .money {
+    align-items: center;
     position: relative;
     display: block;
-    width: 150px;
-    height: 130px;
+    width: 75px;
+    height: 65px;
     /* box-shadow: 0 0 15px rgba(0, 0, 0, .5); */
     align-items: center;
 }
