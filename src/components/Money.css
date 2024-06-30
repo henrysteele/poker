@@ -1,0 +1,63 @@
+.money {
+    position: relative;
+    display: block;
+    width: 150px;
+    height: 130px;
+    /* box-shadow: 0 0 15px rgba(0, 0, 0, .5); */
+    align-items: center;
+}
+
+.mirror {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+.coin {
+    position: absolute;
+    width: auto;
+    max-height: 100%;
+}
+
+.coin img {
+    height: 50px;
+}
+
+.coin1 img {
+    height: 20px;
+}
+
+.coin2 img {
+    height: 25px;
+}
+
+.coin6 img {
+    height: 40px;
+}
+
+.coin15 img {
+    height: 50px;
+}
+
+.coin50 img,
+.coin1000 img {
+    height: 60px;
+}
+
+.coin100 img {
+    height: 50px
+}
+
+.coin700 img {
+    height: 120px;
+    z-index: 0;
+}
+
+.coin5000 img {
+    height: 100px;
+    z-index: 5;
+}
+
+.coin1000 img,
+.coin5000 img {
+    margin-bottom: 15px;
+}

@@ -11,38 +11,19 @@ import {
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
 import config from "./config"
 
-const deck = shuffle(createCards())
-const discards = []
-const tableOfCards = []
-const names = ["Henry", "Dork", "Dumby"]
-const players = names.map((name) => {
-  return { name, cards: [] }
-})
-const n = 9
-
-function startGame() {
-  for (let i = 0; i < 5; i++) {
-    for (let player of players) {
-      player.cards.push(deck.pop())
-    }
-  }
-
-  discards.push(deck.pop())
-  for (let i = 0; i < n; i++) {
-    tableOfCards.push(deck.pop())
-  }
-  console.log({ startGame: tableOfCards, discards, players, deck })
-}
 function App() {
-  startGame()
+  const names = ["Henry", "Dork", "Dumby"]
+  const cards = createCards()
+  const hands = dealCards(cards, names)
+  getRank(hands[0], hands)
   return (
     <>
       <Container>
         <Dealer />
-        <For each={players}>
-          {(player) => (
+        <For each={hands}>
+          {(hand) => (
             <>
-              <Player name={player.name} cards={player.cards} />
+              <Player name={hand.name} cards={hand.cards} />
             </>
           )}
         </For>
@@ -50,53 +31,27 @@ function App() {
     </>
   )
 }
-fix the first profile so that works the way we want it to work...
-let usedPeeps = []
-let peeps = (
-  "dealer blob catwoman dr.strange harleyquinn hulk iceman joker mummy " +
-  "penguin poisonivy riddler scarecrow twoface venom"
-).split(" ")
-let name = peeps[0]
-
-function getNextPeep(old) {
-  let index = peeps.indexOf(old) + 1
-  if (index >= peeps.length) index = 0
-  return peeps[index]
-}
-
-function getNewPeep(old) {
-  let newPeep = getNextPeep(old)
-  while (usedPeeps.includes(newPeep)) {
-    newPeep = getNextPeep(newPeep)
-  }
-  usedPeeps = usedPeeps.filter((text) => text != old)
-  usedPeeps.push(newPeep)
-  return newPeep
-}
 
 function Profile(props) {
-  let peep = props.name || getNewPeep()
-  const [src, setSrc] = createSignal(props.src || `./dist/peeps/${peep}.png`)
-
-  console.log(usedPeeps)
-  const [style, setStyle] = createSignal({
+  const peeps =
+    "blob catwoman dr.strange harleyquinn hulk iceman joker mummy penguin poisonivy riddler scarecrow twoface venom".split(
+      " "
+    )
+  const src =
+    props.src || props.name == "dealer"
+      ? "./dist/peeps/dealer.png"
+      : `./dist/peeps/${peeps[Math.floor(Math.random() * peeps.length)]}.png`
+  const style = {
     ...config.style.profile.image,
     ...props.style,
-    background: `url(${src()})`,
-  })
-
-  function onClick() {
-    peep = getNewPeep(peep)
-    setSrc(`./dist/peeps/${peep}.png`)
-    console.log({ onClick: name, usedPeeps })
-    setStyle({ ...style(), background: `url(${src()})` })
+    background: `url(${src})`,
   }
 
   return (
-    <div onClick={onClick}>
+    <>
       <div class="capitalize">{props.name || "anonymous"}</div>
-      <div style={style()}></div>
-    </div>
+      <div style={style}></div>
+    </>
   )
 }
 
