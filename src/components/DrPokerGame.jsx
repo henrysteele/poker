@@ -48,19 +48,19 @@ function tossCards (list, callback, i = 0) {
     if (i < len - 1) {
         const id = list[i]
         const pos = $('#' + list[i + 1]).offset()
-        toss(id, pos, () => {
+        tossCard(id, pos, () => {
             tossCards(list, callback, i + 1)
         })
     }
-    if (i == len - 1) toss(list[list.length - 1], $('#' + list[0]).offset(), callback)
+    if (i == len - 1) tossCard(list[list.length - 1], $('#' + list[0]).offset(), callback)
 }
 
 function swapCards (list, callback) {
     const $source = $('#' + list[0])
     const $target = $('#' + list[1])
 
-    toss(list[0], $target.offset())
-    toss(list[1], $source.offset(), callback)
+    tossCard(list[0], $target.offset())
+    tossCard(list[1], $source.offset(), callback)
 }
 
 function delay (time) {
@@ -103,7 +103,7 @@ export function DrPokerGame (props) {
                 const id = cards.pop()
                 const pos = $(`#Grid`).offset()
                 pos.top += 100; pos.left += 50
-                toss(id, pos, () => {
+                tossCard(id, pos, () => {
                     nine.push(id)
                     setGrid([...nine])
                 })
@@ -120,7 +120,7 @@ export function DrPokerGame (props) {
                     const id = cards.pop()
                     const pos = $(`#${player.name}-hand`).offset()
                     pos.top -= 20; pos.left += 200
-                    toss(id, pos, () => {
+                    tossCard(id, pos, () => {
                         player.cards.push(id)
                         setPlayers(structuredClone(peeps))
                     })
@@ -215,7 +215,9 @@ $.fn.animateRotate = function (angle, duration, easing, complete) {
 };
 
 
-function toss (id, pos, callback) {
+const $coin = $(`<img src="/dist/coins/1.png">`)
+
+function tossCard (id, pos, callback) {
     //const snd = document.getElementById("card-sounds")
     const $doc = $('#root')
     const $id = $('#' + id)
