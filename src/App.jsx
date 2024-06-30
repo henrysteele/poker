@@ -1,4 +1,10 @@
-import { createCards, dealCards, bestHand, getRank, shuffle } from "./cards"
+import {
+  createCards,
+  dealCards,
+  bestHand,
+  getRank,
+  shuffle,
+} from "./components/cards"
 import { For, createSignal, createEffect, onMount } from "solid-js"
 import {
   Box,
@@ -8,8 +14,8 @@ import {
   CardActions,
   Container,
 } from "@suid/material"
-import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
-import config from "./config"
+import { FlipIt, FlipFront, FlipBack } from "./components/FlipIt"
+import config from "./components/config"
 
 function App() {
   const names = ["Henry", "Dork", "Dumby"]
@@ -156,7 +162,7 @@ function PlayingCard(props) {
               <div
                 style={{
                   ...config.style.suit,
-                  "background-image": `url(/dist/${config.suits[suit]}.png)`,
+                  "background-image": `url(/dist/cards/${config.suits[suit]}.png)`,
                 }}
               ></div>
             </div>
