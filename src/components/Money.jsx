@@ -38,7 +38,7 @@ export function Money (props) {
 
 
     function onSlide (e) {
-        setBet(e.target.value)
+        setBet(Math.round(e.target.value))
     }
 
     function onBet () {
