@@ -9,6 +9,10 @@ export function Money (props) {
     const [bet, setBet] = createSignal(5)
 
     createEffect(() => {
+        setTotal(props.total)
+    })
+
+    createEffect(() => {
         let value = Math.round(total())
         let out = []
 
@@ -41,6 +45,7 @@ export function Money (props) {
         setPot(pot() + bet())
         setTotal(total() - bet())
         setBet(Math.min(bet(), Math.round(total() / 2)))
+        console.log({ onBet: bet(), pot: pot(), total: total() })
     }
 
 

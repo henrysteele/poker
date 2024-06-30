@@ -146,12 +146,6 @@ export function DrPokerGame (props) {
     }
 
 
-
-
-    setInterval(() => {
-        setPot(pot() + 11)
-    }, 300)
-
     createEffect(() => {
         const ids = selectedIds()
         if (ids.length == 2) {
@@ -170,8 +164,9 @@ export function DrPokerGame (props) {
         <Box>
             <Button onClick={onDeal}>deal cards</Button>
         </Box>
-        <Dealer total={pot()}>
 
+
+        <Dealer total={pot()}>
             <Stack direction="row" spacing={2}>
                 <Stack direction="column" spacing={2} >
                     <DeckOfCards cards={deck()} />
