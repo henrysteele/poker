@@ -8,7 +8,6 @@ import config from "./config"
 export function Profile (props) {
     return (
         <div>
-            <div class="capitalize">{props.name || "anonymous"}</div>
             <div style={{
                 ...config.style.profile.image,
                 ...props.style,
@@ -25,7 +24,7 @@ export function Dealer (props) {
             <CardContent>
                 <Stack direction="row">
                     <Profile name="dealer" src="/dist/peeps/dealer.png" />
-                    <Money total={props.total} />
+                    <Money total={props.total} controls={false} />
                 </Stack>
             </CardContent>
             <CardActions>{props.children} </CardActions>
@@ -41,7 +40,7 @@ export function Player (props) {
             <CardContent>
                 <Stack direction="row">
                     <Profile name={props.name} src={props.src} />
-                    <Money total={props.total} />
+                    <Money total={props.total} name={props.name} />
                 </Stack>
             </CardContent>
             <CardActions>{props.children} </CardActions>

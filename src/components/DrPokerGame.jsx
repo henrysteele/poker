@@ -11,6 +11,7 @@ export const [deck, setDeck] = createSignal([]) //[ id, ... ]
 export const [discards, setDiscards] = createSignal([]) // [ id, ...]
 export const [players, setPlayers] = createSignal([]) // [ { name, cards: [] }, ...]
 export const [grid, setGrid] = createSignal([]) // [id x 9]
+export const [pot, setPot] = createSignal(0)
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
@@ -76,7 +77,7 @@ export function DrPokerGame (props) {
         const peeps = config.profilenames
         const people = names.map((name, i) => {
             const src = `/dist/peeps/${peeps[i]}.png`
-            return { name, src, cards: [] }
+            return { name, src, cards: [], money: 1000 }
         })
         setPlayers(structuredClone(people))
         setGrid([])
@@ -146,9 +147,9 @@ export function DrPokerGame (props) {
 
 
 
-    const [total, setTotal] = createSignal(0)
+
     setInterval(() => {
-        setTotal(total() + 11)
+        setPot(pot() + 11)
     }, 300)
 
     createEffect(() => {
@@ -169,7 +170,7 @@ export function DrPokerGame (props) {
         <Box>
             <Button onClick={onDeal}>deal cards</Button>
         </Box>
-        <Dealer total={total()}>
+        <Dealer total={pot()}>
 
             <Stack direction="row" spacing={2}>
                 <Stack direction="column" spacing={2} >
@@ -185,7 +186,7 @@ export function DrPokerGame (props) {
         <For each={players()}>
             {(player) => (
                 <>
-                    <Player name={player.name} total={total() / 10} src={player.src}>
+                    <Player name={player.name} total={player.money} src={player.src} >
                         <Hand id={`${player.name}-hand`} cards={player.cards} />
                     </Player>
                 </>
