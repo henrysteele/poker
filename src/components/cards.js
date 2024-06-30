@@ -9,22 +9,18 @@ export function createCards() {
 			cards.push(card)
 		}
 	}
-	cards = shuffle(cards)
-	return cards
+	return shuffle(cards)
 }
 
 export function shuffle(cards) {
+	cards = [...cards]
 	const shuffled = []
-
 	while (cards.length) {
 		let index = Math.floor(Math.random() * cards.length)
 		shuffled.push(cards[index])
 		const spliced = cards.splice(index, 1)
-		console.log({ cards, spliced, shuffled })
 	}
-	cards = shuffled
-	console.log(Math.random() * 26)
-	return cards
+	return shuffled
 }
 
 export function dealCards(cards, players, count = 5) {
@@ -37,7 +33,6 @@ export function dealCards(cards, players, count = 5) {
 			const player = players[i]
 			const chosen = shuffled.pop()
 			player.cards.push(chosen)
-			console.log({ shuffled, players, chosen })
 		}
 	}
 	return players
@@ -114,7 +109,7 @@ function haveFullHouse(cards) {
 }
 
 function haveFlush(cards) {
-	if (!cards) return false
+	if (!cards?.length) return false
 	const suit = cards[0].slice(-1)
 	for (let card of cards) {
 		if (card.slice(-1) != suit) return false
@@ -122,10 +117,10 @@ function haveFlush(cards) {
 	return true
 }
 
-function haveStraight(hand) {
+function haveStraight(cards) {
 	//strip of suit, sort in ascending order and ensure theu are sequential
-	if (!hand) return false
-	const filtered = hand
+	if (!cards?.length) return false
+	const filtered = cards
 		.map((card) => {
 			return getValue(card)
 		})
@@ -136,12 +131,12 @@ function haveStraight(hand) {
 	return filtered[len - 1] - (len - 1) == filtered[0]
 }
 
-function haveStraightFlush(hand) {
-	return haveStraight(hand) && haveFlush(hand)
+function haveStraightFlush(cards) {
+	return haveStraight(cards) && haveFlush(cards)
 }
 
-function haveRoyalFlush(hand) {
-	return haveStraightFlush(hand) && hand.join("").includes("A")
+function haveRoyalFlush(cards) {
+	return haveStraightFlush(cards) && cards.join("").includes("A")
 }
 function getOffset(cards) {
 	const functions = [
@@ -158,14 +153,14 @@ function getOffset(cards) {
 	return 0
 }
 
-export function getRank(hand) {
+export function getRank(cards) {
 	const list = "2,3,4,5,6,7,8,9,10,J,Q,K,A".split(",")
-	const text = hand.join("")
+	const text = cards.join("")
 	let total = 0
 	for (let i = 0; i < list.length; i++) {
 		let count = text.split(list[i]).length - 1
 		let value = count && (i + 2) * Math.pow(200, count)
-		value += getOffset(hand.cards)
+		value += getOffset(cards)
 		total += value
 	}
 	return total
@@ -173,7 +168,79 @@ export function getRank(hand) {
 
 export function bestHand(hands) {
 	for (let hand of hands) {
-		hand.rank = getRank(hand)
+		hand.rank = getRank(hand.cards)
 	}
 	return hands.sort((a, b) => a.rank - b.rank)
 }
+
+function sanityTest() {
+	const ordered = []
+
+	ordered.push({ name: "nopair", cards: ["2♦ ", "3♦ ", "4♠", "7♥", "5♦ "] })
+	ordered.push({
+		name: "nopairhigh",
+		cards: ["9♦ ", "J♦ ", "Q♠", "K♥", "A♦ "],
+	})
+	ordered.push({ name: "pair", cards: ["2♦ ", "3♦ ", "4♠", "2♥", "5♦ "] })
+	ordered.push({ name: "pairhigh", cards: ["A♦ ", "K♦ ", "A♠", "Q♥", "J♦ "] })
+
+	ordered.push({ name: "twoPair", cards: ["2♠", "4♣", "3♣", "2♣", "3♦ "] })
+	ordered.push({
+		name: "twoPairMed",
+		cards: ["10♠", "10♣", "9♣", "2♣", "9♦ "],
+	})
+	ordered.push({
+		name: "twoPairMedHigh",
+		cards: ["J♠", "J♣", "3♣", "2♣", "3♦ "],
+	})
+
+	ordered.push({
+		name: "twoPairHigh",
+		cards: ["A♠", "Q♣", "K♣", "A♣", "K♦ "],
+	})
+	ordered.push({
+		name: "threeOfAKind",
+		cards: ["2♣", "2♥", "2♦", "3♠", "4♠"],
+	})
+	ordered.push({
+		name: "threeOfAKindhigh",
+		cards: ["A♣", "A♥", "A♦", "K♠", "Q♠"],
+	})
+
+	ordered.push({ name: "straight", cards: ["2♠", "3♦", "4♠", "5♠", "6♠"] })
+	ordered.push({
+		name: "straighthigh",
+		cards: ["9♠", "10♦", "J♠", "Q♠", "K♠"],
+	})
+	ordered.push({ name: "flush", cards: ["2♠", "3♠", "4♠", "5♠", "7♠"] })
+	ordered.push({ name: "flushhigh", cards: ["9♠", "J♠", "Q♠", "K♠", "A♠"] })
+
+	ordered.push({ name: "fullHouse", cards: ["3♠", "2♥", "2♠ ", "2♣", "3♥"] })
+	ordered.push({
+		name: "fullHousehigh",
+		cards: ["K♠", "A♥", "A♠ ", "A♣", "K♥"],
+	})
+	ordered.push({
+		name: "fourOfAKind",
+		cards: ["3♦ ", "2♠", "2♥", "2♦ ", "2♣"],
+	})
+	ordered.push({
+		name: "fourOfAKindhigh",
+		cards: ["K♦ ", "A♠", "A♥", "A♦ ", "A♣"],
+	})
+	ordered.push({
+		name: "straightFlush",
+		cards: ["2♠", "3♠", "4♠", "5♠", "6♠"],
+	})
+	ordered.push({
+		name: "straightFlushhigh",
+		cards: ["9♠", "10♠", "J♠", "Q♠", "K♠"],
+	})
+	ordered.push({ name: "royalFlush", cards: ["10♠", "Q♠", "J♠", "A♠", "K♠"] })
+
+	const sorted = bestHand(shuffle(ordered))
+	const pass = JSON.stringify(ordered) == JSON.stringify(sorted)
+	console.log({ sanityTest: pass, ordered, sorted })
+}
+
+sanityTest()
