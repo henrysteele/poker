@@ -12,7 +12,7 @@ export const [discards, setDiscards] = createSignal([]) // [ id, ...]
 export const [players, setPlayers] = createSignal([]) // [ { name, cards: [] }, ...]
 export const [grid, setGrid] = createSignal([]) // [id x 9]
 
-export const [newCards, setNewCards] = createSignal([]) // [id]
+export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
 
 /**
@@ -91,7 +91,7 @@ export function DrPokerGame (props) {
         init()
         const cards = structuredClone(deck())
         const nine = [...grid()]
-        const wait = 400
+        const wait = 200
         let time = 0
 
         setDiscards([cards.pop()])
@@ -131,9 +131,17 @@ export function DrPokerGame (props) {
         setTimeout(() => {
             setDeck([])
             setDeck(cards)
+            const list = []
+            peeps.forEach(player => {
+                list.push(player.cards[0])
+            })
+            setShowingCards(list)
         }, time)
 
 
+        setTimeout(() => {
+            setShowingCards([])
+        }, 20000)
     }
 
 
@@ -219,7 +227,10 @@ function toss (id, pos, callback) {
     const $clone = $id.clone()
     $id.css('opacity', 0)
 
-    snd?.play && snd.play()
+    if (snd) {
+        snd.volume = 0.1
+        snd.play()
+    }
 
     const speed = config.card?.speed || 400
     $clone
