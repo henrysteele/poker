@@ -1,4 +1,9 @@
 export default {
+	profilenames: (
+		"catwoman dr.strange harleyquinn hulk iceman joker mummy" +
+		" penguin poisonivy riddler scarecrow twoface venom blob"
+	).split(" "),
+
 	suits: {
 		"♠": "spades",
 		"♥": "hearts",
