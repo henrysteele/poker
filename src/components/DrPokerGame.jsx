@@ -244,6 +244,3 @@ function toss (id, pos, callback) {
             }
         )
 }
-
-
-
