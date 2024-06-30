@@ -93,7 +93,7 @@ div.card.down .content {
 
 .back {
   transform: rotateY(180deg);
-  background-image: url(/dist/joker.back.jpg);
+  background-image: url(/dist/cards/joker.back.jpg);
   background-size: contain;
   border-color: white;
 }
