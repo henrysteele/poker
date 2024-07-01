@@ -40,8 +40,8 @@ export function dealCards(cards, players, count = 5) {
 
 function getValue(card) {
 	card = card.trim()
-	if (!card || !card.length) return 0
-	const value = card.slice(0, card.length - 1)
+	if (!card?.length) return 0
+	const value = card.slice(0, card.length - 1).toUpperCase()
 	if (value == "J") {
 		return 11
 	}
@@ -54,7 +54,7 @@ function getValue(card) {
 	if (value == "A") {
 		return 14
 	}
-	return value
+	return parseInt(value)
 }
 
 function getSame(cards) {
@@ -140,12 +140,15 @@ function haveRoyalFlush(cards) {
 }
 function getOffset(cards) {
 	const functions = [
-		{ f: haveRoyalFlush, offset: 100000000000 },
-		{ f: haveStraightFlush, offset: 10000000000 },
-		{ f: haveFullHouse, offset: 30000000 },
-		{ f: haveFlush, offset: 15000000 },
-		{ f: haveStraight, offset: 14000000 },
-		{ f: haveTwoPair, offset: 400000 },
+		{ f: haveRoyalFlush, offset: 100000 },
+		{ f: haveStraightFlush, offset: 84000 },
+		{ f: haveFourOfAKind, offset: 52000 },
+		{ f: haveFullHouse, offset: 32000 },
+		{ f: haveFlush, offset: 20000 },
+		{ f: haveStraight, offset: 12000 },
+		{ f: haveThreeOfAKind, offset: 8000 },
+		{ f: haveTwoPair, offset: 4000 },
+		{ f: havePair, offset: 1000 },
 	]
 	for (let item of functions) {
 		if (item.f(cards)) return item.offset
@@ -159,7 +162,7 @@ export function getRank(cards) {
 	let total = 0
 	for (let i = 0; i < list.length; i++) {
 		let count = text.split(list[i]).length - 1
-		let value = count && (i + 2) * Math.pow(200, count)
+		let value = count && (i + 2) * Math.pow(2, count)
 		value += getOffset(cards)
 		total += value
 	}
