@@ -38,135 +38,114 @@ export function dealCards(cards, players, count = 5) {
 	return players
 }
 
-function getValue(card) {
-	card = card.trim()
-	if (!card?.length) return 0
-	const value = card.slice(0, card.length - 1).toUpperCase()
-	if (value == "J") {
-		return 11
+export function getRank(hand) {
+	if (!hand?.length) return 0
+
+	const mapsuits = {
+		"♠": "S",
+		"♥": "H",
+		"♣": "C",
+		"♦": "D",
+		S: "S",
+		H: "H",
+		C: "C",
+		D: "D",
 	}
-	if (value == "Q") {
-		return 12
+
+	let cards = hand.map((card) => ({
+		rank: card.slice(0, -1).toUpperCase().replace("10", "T"),
+		suit: mapsuits[card.slice(-1).toUpperCase()],
+	}))
+
+	// Helper functions
+	const isFlush = () => new Set(cards.map((c) => c.suit)).size === 1
+
+	const isStraight = () => {
+		const ranks = "23456789TJQKA"
+		const handRanks = cards
+			.map((c) => ranks.indexOf(c.rank))
+			.sort((a, b) => a - b)
+		return handRanks.every(
+			(rank, i) => i === 0 || rank === handRanks[i - 1] + 1
+		)
 	}
-	if (value == "K") {
-		return 13
+
+	const rankCounts = {}
+	// cards = ["2S", "3S", "9S", "JS", "JH"].map((card) => ({
+	// 	rank: card.slice(0, -1),
+	// 	suit: card.slice(-1),
+	// }))
+
+	for (const card of cards) {
+		let tmp = rankCounts[card.rank] || 0
+		rankCounts[card.rank] = tmp + 1
 	}
-	if (value == "A") {
-		return 14
+
+	const values = Object.values(rankCounts)
+	const keys = Object.keys(rankCounts)
+
+	// debugger
+
+	// Rank determination (with scoring and hand type mapping)
+	const ranks = "23456789TJQKA"
+	const suits = "CDHS"
+	let score = 0
+	let type = "none"
+
+	if (isFlush() && isStraight()) {
+		score = 9000 + ranks.indexOf(cards[0].rank)
+		type = hand.join("").includes("A")
+			? "royal straight flush"
+			: "straight flush"
+	} else if (values.includes(4)) {
+		score =
+			8000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 4))
+		type = "4kind"
+	} else if (values.includes(3) && values.includes(2)) {
+		score =
+			7000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 3))
+		type = "fullhouse"
+	} else if (isFlush()) {
+		score =
+			6000 +
+			cards.reduce((acc, card) => acc + ranks.indexOf(card.rank), 0)
+		type = "flush"
+	} else if (isStraight()) {
+		score = 5000 + ranks.indexOf(cards[0].rank)
+		type = "straight"
+	} else if (values.includes(3)) {
+		score =
+			4000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 3))
+		type = "3kind"
+	} else if (values.filter((count) => count === 2).length === 2) {
+		const pairs = keys
+			.filter((rank) => rankCounts[rank] === 2)
+			.sort((a, b) => ranks.indexOf(b) - ranks.indexOf(a))
+		score = 3000 + ranks.indexOf(pairs[0]) * 100 + ranks.indexOf(pairs[1])
+		type = "2pair"
+	} else if (values.includes(2)) {
+		score =
+			2000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 2))
+		type = "1pair"
+	} else {
+		score = cards.reduce((acc, card) => acc + ranks.indexOf(card.rank), 0)
 	}
-	return parseInt(value)
-}
 
-function getSame(cards) {
-	// defensive code
-	if (!cards) return false
-	// create a new array call same
-	const same = []
-	// do this once per every card
-	for (let j = 0; j < cards.length; j++) {
-		// get a value from one of the cards
-		const value = getValue(cards[j])
-		// go through each card
-		for (let i = 0; i < cards.length; i++) {
-			if (i == j) continue
-			// when a specific card includes the value from one of the cards...
-			if (getValue(cards[i]) == value) {
-				// we push it to the new same varible we made at the start of this function
-				if (same.includes(cards[i])) {
-					continue
-				}
-				same.push(cards[i])
-			}
-		}
-	}
-	// same as an if statement
-	// if(same.length == 3){
-	// return true
-	// }
-	return same
-}
-function haveThreeOfAKind(cards) {
-	return getSame(cards).length == 3
-}
-
-function havePair(cards) {
-	return getSame(cards).length == 2
-}
-
-function haveFourOfAKind(cards) {
-	const four = getSame(cards)
-	if (four.length != 4) return false
-	cards = getSame(four.slice(0, 3))
-	return cards.length == 3
-}
-
-function haveTwoPair(cards) {
-	return getSame(cards).length == 4 && !haveFourOfAKind(cards)
-}
-
-function haveFullHouse(cards) {
-	return getSame(cards).length == 5
-}
-
-function haveFlush(cards) {
-	if (!cards?.length) return false
-	const suit = cards[0].slice(-1)
-	for (let card of cards) {
-		if (card.slice(-1) != suit) return false
-	}
-	return true
-}
-
-function haveStraight(cards) {
-	//strip of suit, sort in ascending order and ensure theu are sequential
-	if (!cards?.length) return false
-	const filtered = cards
-		.map((card) => {
-			return getValue(card)
-		})
+	// Add kicker values for tie-breakers (with suit ranking)
+	const remainingCards = cards
+		.filter((card) => rankCounts[card.rank] === 1)
 		.sort((a, b) => {
-			return a - b
+			const rankDiff = ranks.indexOf(b.rank) - ranks.indexOf(a.rank)
+			if (rankDiff !== 0) return rankDiff // Sort by rank first
+			return suits.indexOf(b.suit) - suits.indexOf(a.suit) // Then by suit if rank is the same
 		})
-	const len = filtered.length
-	return filtered[len - 1] - (len - 1) == filtered[0]
-}
 
-function haveStraightFlush(cards) {
-	return haveStraight(cards) && haveFlush(cards)
-}
-
-function haveRoyalFlush(cards) {
-	return haveStraightFlush(cards) && cards.join("").includes("A")
-}
-function getOffset(cards) {
-	const functions = [
-		{ f: haveRoyalFlush, offset: 100000 },
-		{ f: haveStraightFlush, offset: 84000 },
-		{ f: haveFourOfAKind, offset: 52000 },
-		{ f: haveFullHouse, offset: 32000 },
-		{ f: haveFlush, offset: 20000 },
-		{ f: haveStraight, offset: 12000 },
-		{ f: haveThreeOfAKind, offset: 8000 },
-		{ f: haveTwoPair, offset: 4000 },
-		{ f: havePair, offset: 1000 },
-	]
-	for (let item of functions) {
-		if (item.f(cards)) return item.offset
+	for (let i = 0; i < remainingCards.length; i++) {
+		score += ranks.indexOf(remainingCards[i].rank) * Math.pow(0.15, i + 1)
+		score += suits.indexOf(remainingCards[i].suit) * Math.pow(0.015, i + 1) // Add suit value with lower weight
 	}
-	return 0
-}
 
-export function getRank(cards) {
-	const list = "2,3,4,5,6,7,8,9,10,J,Q,K,A".split(",")
-	const text = cards.join("")
-	let total = 0
-	for (let i = 0; i < list.length; i++) {
-		let count = text.split(list[i]).length - 1
-		let value = count && (i + 2) * Math.pow(2, count)
-		value += getOffset(cards)
-		total += value
-	}
-	return total
+	return { hand, score, type }
 }
 
 export function bestHand(hands) {
@@ -176,74 +155,64 @@ export function bestHand(hands) {
 	return hands.sort((a, b) => a.rank - b.rank)
 }
 
-function sanityTest() {
-	const ordered = []
+function generateAllPokerHands() {
+	const suits = ["S", "H", "D", "C"]
+	const ranks = "23456789TJQKA"
+	const cards = []
+	const allHands = []
 
-	ordered.push({ name: "nopair", cards: ["2♦ ", "3♦ ", "4♠", "7♥", "5♦ "] })
-	ordered.push({
-		name: "nopairhigh",
-		cards: ["9♦ ", "J♦ ", "Q♠", "K♥", "A♦ "],
-	})
-	ordered.push({ name: "pair", cards: ["2♦ ", "3♦ ", "4♠", "2♥", "5♦ "] })
-	ordered.push({ name: "pairhigh", cards: ["A♦ ", "K♦ ", "A♠", "Q♥", "J♦ "] })
+	// Generate all individual cards
+	for (const suit of suits) {
+		for (const rank of ranks) {
+			cards.push(rank + suit)
+		}
+	}
 
-	ordered.push({ name: "twoPair", cards: ["2♠", "4♣", "3♣", "2♣", "3♦ "] })
-	ordered.push({
-		name: "twoPairMed",
-		cards: ["10♠", "10♣", "9♣", "2♣", "9♦ "],
-	})
-	ordered.push({
-		name: "twoPairMedHigh",
-		cards: ["J♠", "J♣", "3♣", "2♣", "3♦ "],
-	})
+	// Efficiently generate combinations using recursion
+	function generateCombinations(currentHand, remainingCards) {
+		if (currentHand.length === 5) {
+			allHands.push(currentHand)
+			return
+		}
 
-	ordered.push({
-		name: "twoPairHigh",
-		cards: ["A♠", "Q♣", "K♣", "A♣", "K♦ "],
-	})
-	ordered.push({
-		name: "threeOfAKind",
-		cards: ["2♣", "2♥", "2♦", "3♠", "4♠"],
-	})
-	ordered.push({
-		name: "threeOfAKindhigh",
-		cards: ["A♣", "A♥", "A♦", "K♠", "Q♠"],
-	})
+		for (let i = 0; i < remainingCards.length; i++) {
+			generateCombinations(
+				currentHand.concat(remainingCards[i]),
+				remainingCards.slice(i + 1)
+			)
+		}
+	}
 
-	ordered.push({ name: "straight", cards: ["2♠", "3♦", "4♠", "5♠", "6♠"] })
-	ordered.push({
-		name: "straighthigh",
-		cards: ["9♠", "10♦", "J♠", "Q♠", "K♠"],
-	})
-	ordered.push({ name: "flush", cards: ["2♠", "3♠", "4♠", "5♠", "7♠"] })
-	ordered.push({ name: "flushhigh", cards: ["9♠", "J♠", "Q♠", "K♠", "A♠"] })
-
-	ordered.push({ name: "fullHouse", cards: ["3♠", "2♥", "2♠ ", "2♣", "3♥"] })
-	ordered.push({
-		name: "fullHousehigh",
-		cards: ["K♠", "A♥", "A♠ ", "A♣", "K♥"],
-	})
-	ordered.push({
-		name: "fourOfAKind",
-		cards: ["3♦ ", "2♠", "2♥", "2♦ ", "2♣"],
-	})
-	ordered.push({
-		name: "fourOfAKindhigh",
-		cards: ["K♦ ", "A♠", "A♥", "A♦ ", "A♣"],
-	})
-	ordered.push({
-		name: "straightFlush",
-		cards: ["2♠", "3♠", "4♠", "5♠", "6♠"],
-	})
-	ordered.push({
-		name: "straightFlushhigh",
-		cards: ["9♠", "10♠", "J♠", "Q♠", "K♠"],
-	})
-	ordered.push({ name: "royalFlush", cards: ["10♠", "Q♠", "J♠", "A♠", "K♠"] })
-
-	const sorted = bestHand(shuffle(ordered))
-	const pass = JSON.stringify(ordered) == JSON.stringify(sorted)
-	console.log({ sanityTest: pass, ordered, sorted })
+	generateCombinations([], cards)
+	return allHands
 }
 
-sanityTest()
+// Sanity Test
+function runSanityTest() {
+	const allHands = generateAllPokerHands().map((hand) => getRank(hand))
+
+	const names =
+		"royal straight flush fullhouse 4kind 3kind 2pair 1pair none".split(" ")
+	const hands = {}
+	names.forEach((name) => {
+		hands[name] = allHands.filter((hand) => hand.type.includes(name))
+	})
+	const twoPair = hands["2pair"].sort((a, b) => a.score - b.score)
+	const len = twoPair.length
+	const comps = [twoPair[0], twoPair[Math.round(len / 2)], twoPair[len - 1]]
+	console.log({
+		sanityTest:
+			comps[0].score < comps[1].score && comps[1].score < comps[2].score,
+		allHands,
+		hands,
+		twoPair,
+		comps,
+	})
+
+	const a = getRank("TH,TD,9H,9D,2S".split(","))
+	const b = getRank("JH,JD,3H,3D,2S".split(","))
+
+	console.log({ "2pairTest": a.score < b.score, a, b })
+}
+
+// runSanityTest()
