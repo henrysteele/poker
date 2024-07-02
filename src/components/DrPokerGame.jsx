@@ -89,7 +89,13 @@ export function DrPokerGame(props) {
     const peeps = config.profilenames
     const people = names.map((name, i) => {
       const src = `/dist/peeps/${peeps[i]}.png`
-      return { name, src, cards: [], money: 1000000, totalBet: 0 }
+      return {
+        name,
+        src,
+        cards: [],
+        money: 1000000,
+        totalBet: 0,
+      }
     })
     setPlayers(structuredClone(people))
     setGrid([])

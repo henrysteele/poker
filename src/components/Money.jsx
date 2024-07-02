@@ -18,9 +18,11 @@ export function Money(props) {
   const [output, setOutput] = createSignal([])
   const [total, setTotal] = createSignal(props.total)
   const [bet, setBet] = createSignal(5)
+  const [call, setCall] = createSignal(props.call)
 
   createEffect(() => {
-    setTotal(props.total)
+    setTotal(props.total || 0)
+    setCall(props.call || 0)
   })
 
   createEffect(() => {
@@ -85,15 +87,15 @@ export function Money(props) {
     return { top, left }
   }
 
-  let [call, setCall] = createSignal(0)
-
-  function onBet() {
-    setPot(pot() + bet())
-    setTotal(total() - bet())
+  function onBet(amount = 0) {
+    setPot(pot() + amount)
+    setTotal(total() - amount)
+    update players.totalBet
+    totalBet += bet()
     let time = 0
     const wait = 100
 
-    for (let i = 0; i < Math.min(10, bet()); i++) {
+    for (let i = 0; i < Math.min(10, amount); i++) {
       setTimeout(() => {
         tossCoin(
           getMiddleOffset($(`#player-${props.name} .money`)),
@@ -105,19 +107,13 @@ export function Money(props) {
 
     console.log(call)
 
-    setBet(Math.min(bet(), Math.round(total() / 2)))
-    console.log({ onBet: bet(), pot: pot(), total: total() })
+    setBet(Math.min(amount, Math.round(total() / 2)))
+    console.log({ onBet: amount, pot: pot(), total: total() })
   }
 
   function onCall() {
-    // console.log("clicked")
-
-    setCall(call() + bet())
-    setPot(pot() + call())
-    setTotal(total() - call())
-    if (total <= 0) {
-      total = 0
-    }
+    console.log({ clicked: "clicked", bet: bet() })
+    onBet(call())
     setCall(0)
   }
 
@@ -132,10 +128,10 @@ export function Money(props) {
       <div class="money"> {output} </div>
 
       <Show when={props.controls ?? true}>
-        <Button variant="x" onClick={onCall()}>
+        <Button variant="x" onClick={onCall}>
           call ${call()} 😘
         </Button>
-        <Button variant="x" onClick={onBet}>
+        <Button variant="x" onClick={() => onBet(bet())}>
           bet ${bet()} 💰
         </Button>
         <Button variant="x">fold 💩</Button>
