@@ -67,7 +67,6 @@ export function Money (props) {
     function onCall () {
         console.log({ clicked: "clicked", bet: bet() })
         onBet(call())
-        setCall(0)
     }
 
     return (

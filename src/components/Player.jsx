@@ -46,17 +46,17 @@ export function Dealer (props) {
 export function Player (props) {
     const [call, setCall] = createSignal(0)
 
-    //   createEffect(() => {
-    //     let maxBet = 0
-    //     for (let player of players()) {
-    //       maxBet = Math.max(maxBet, player.totalBet)
-    //     }
-    //     const player = players().find((player) => {
-    //       return player.name == props.name
-    //     })
-    //     setCall(maxBet - player.totalBet())
-    //     console.log({ player: pot() })
-    //   })
+    createEffect(() => {
+        let maxBet = 0
+        for (let player of players()) {
+            maxBet = Math.max(maxBet, player.totalBet)
+        }
+        const player = players().find((player) => {
+            return player.name == props.name
+        })
+        setCall(maxBet - player.totalBet)
+        console.log({ player: pot() })
+    })
 
 
     function onTada () {
