@@ -11,7 +11,7 @@ import {
 
 import { Money } from "./Money"
 import config from "./config"
-import { setShowingCards, players, pot } from "./DrPokerGame"
+import { setShowingCards, players, setPlayers, pot } from "./DrPokerGame"
 
 export function Profile(props) {
   return (
@@ -54,7 +54,7 @@ export function Player(props) {
     const player = players().find((player) => {
       return player.name == props.name
     })
-    setCall(maxBet - player.totalBet())
+    setCall(maxBet - player.totalBet)
     console.log({ player: pot() })
   })
 

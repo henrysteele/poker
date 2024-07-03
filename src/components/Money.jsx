@@ -10,7 +10,7 @@ import {
   ButtonGroup,
 } from "@suid/material"
 import "./Money.css"
-import { pot, setPot } from "./DrPokerGame"
+import { pot, setPot, placeBet } from "./DrPokerGame"
 import $ from "jquery"
 import config from "./config"
 
@@ -89,9 +89,8 @@ export function Money(props) {
 
   function onBet(amount = 0) {
     setPot(pot() + amount)
-    setTotal(total() - amount)
-    update players.totalBet
-    totalBet += bet()
+    placeBet(props.name, amount)
+
     let time = 0
     const wait = 100
 
