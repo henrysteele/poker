@@ -10,7 +10,7 @@ import {
     ButtonGroup,
 } from "@suid/material"
 import "./Money.css"
-import { pot, setPot } from "./DrPokerGame"
+import { pot, setPot, placeBet } from "./DrPokerGame"
 import $ from "jquery"
 import config from "./config"
 import { tossCoins } from "./animations.jquery"

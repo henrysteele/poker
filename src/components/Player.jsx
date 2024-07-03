@@ -11,7 +11,7 @@ import {
 
 import { Money } from "./Money"
 import config from "./config"
-import { setShowingCards, players, pot } from "./DrPokerGame"
+import { setShowingCards, players, setPlayers, pot } from "./DrPokerGame"
 
 export function Profile (props) {
     return (
