@@ -87,7 +87,9 @@ export function Hand (props) {
                     {(id) => <PlayingCard id={id} down={!showingCards().includes(id)}></PlayingCard>}
                 </For>
             </Stack>
-            rank: {getRank(props.cards)}
+            <Show when={props.cards?.length == 5}>
+                rank: {Math.round(getRank(props.cards).score * 1000) / 1000}
+            </Show>
         </div>
     )
 }
@@ -109,7 +111,6 @@ export function PlayingCard (props) {
         <Box >
 
             <Selectable id={id} style={props.style}>
-                <audio src={config?.card?.sounds || "/dist/audio/card-sounds-35956.mp3"} volume={0.5}></audio >
                 <FlipIt flip={props.down}>
                     <FlipFront>
                         <Card>
