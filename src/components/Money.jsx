@@ -57,13 +57,10 @@ export function Money (props) {
     }
 
     function onBet (amount = 0) {
-        setPot(pot() + amount)
-        setTotal(total() - amount)
-        setBet(Math.min(amount, Math.round(total() / 2)))
-        // todo adjust player's totalBet
-
         tossCoins(amount, `#player-${props.name} .money`, "#dealer .money")
-
+        setPot(pot() + amount)
+        placeBet(props.name, amount)
+        setBet(Math.min(amount, Math.round(total() / 2)))
         console.log({ onBet: amount, pot: pot(), total: total() })
     }
 

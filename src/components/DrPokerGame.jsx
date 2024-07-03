@@ -86,13 +86,6 @@ export function placeBet (name, amount) {
     setPlayers(clones)
 }
 
-export function placeBet (name, amount) {
-    const clones = structuredClone(players() || [])
-    const player = clones.find((p) => p.name == name)
-    player.totalBet += amount
-    player.money -= amount
-    setPlayers(clones)
-}
 
 export function DrPokerGame (props) {
     function init () {
