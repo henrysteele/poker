@@ -82,7 +82,7 @@ export function placeBet (name, amount) {
     const clones = structuredClone(players() || [])
     const player = clones.find((p) => p.name == name)
     player.totalBet += amount
-    player.money -= amount
+    player.money = Math.max(0, player.money - amount)
     setPlayers(clones)
 }
 
@@ -98,7 +98,7 @@ export function DrPokerGame (props) {
                 name,
                 src,
                 cards: [],
-                money: 1000000,
+                money: 1000,
                 totalBet: 0,
             }
         })

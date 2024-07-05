@@ -57,6 +57,7 @@ export function Money (props) {
     }
 
     function onBet (amount = 0) {
+        amount = Math.max(0, Math.min(amount, total()))
         tossCoins(amount, `#player-${props.name} .money`, "#dealer .money")
         setPot(pot() + amount)
         placeBet(props.name, amount)
@@ -103,6 +104,7 @@ export function Money (props) {
                             value={bet()}
                             class="slider"
                             onInput={onSlide}
+                            disabled={total() < 2}
                         />
                     </div>
                 </Box>
