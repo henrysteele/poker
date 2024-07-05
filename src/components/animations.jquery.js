@@ -1,7 +1,7 @@
 import $ from "jquery"
 import config from "./config"
 
-const $coin = $(`<img height='20px' src="/dist/coins/1.png">`)
+const $coin = $(`<img height="12px" src="/dist/coins/1.png">`)
 const $coinAudio = $(`<audio preload src="/dist/audio/coin.m4a">`)
 const $cardAudio = $(`<audio preload src="/dist/audio/card.m4a">`)
 

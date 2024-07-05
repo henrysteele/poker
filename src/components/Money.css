@@ -1,11 +1,13 @@
 .money {
-    align-items: center;
+    /* align-items: center; */
     position: relative;
-    display: block;
-    width: 75px;
-    height: 65px;
+    display: inline-block;
+    width: 100%;
+    height: fit-content;
+    min-height: 1.5em;
+    /* height: 200px; */
     /* box-shadow: 0 0 15px rgba(0, 0, 0, .5); */
-    align-items: center;
+    /* align-items: center; */
 }
 
 .mirror {
@@ -20,47 +22,47 @@
 }
 
 .coin img {
-    height: 50px;
+    height: 1em;
 }
 
 .coin1 img {
-    height: 20px;
+    height: 1em;
 }
 
 .coin2 img {
-    height: 25px;
+    height: 1em;
 }
 
 .coin6 img {
-    height: 40px;
+    height: 2em;
 }
 
 .coin15 img {
-    height: 50px;
+    height: 2em;
 }
 
 .coin50 img,
 .coin1000 img {
-    height: 60px;
+    height: 2em;
 }
 
 .coin100 img {
-    height: 50px
+    height: 2em
 }
 
 .coin700 img {
-    height: 120px;
+    height: 2em;
     z-index: 0;
 }
 
 .coin5000 img {
-    height: 100px;
+    height: 2em;
     z-index: 5;
 }
 
 .coin1000 img,
 .coin5000 img {
-    margin-bottom: 15px;
+    margin-bottom: 1em;
 }
 
 .slidecontainer {

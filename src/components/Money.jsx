@@ -37,7 +37,7 @@ export function Money (props) {
 
             for (let i = 0; i < Math.min(count, 3); i++) {
                 const bottom = Math.random() * 2 + "%"
-                const left = Math.random() * 30 + "%"
+                const left = 50 - Math.random() * 20 + "%"
                 const mirror = Math.random() > 0.5 ? "mirror" : ""
                 const src = `/dist/coins/${denomination}.png`
 
@@ -70,36 +70,44 @@ export function Money (props) {
     }
 
     return (
-        <div>
+        <Box>
             {/* dollar amount */}
             <div style={{ "text-align": "center", "font-size": "larger" }}>
                 <span class="capitalize">{props.name || "Total "}</span>
                 {props.name ? " has " : ""}$
                 {new Intl.NumberFormat("en-US").format(Math.round(total()))}
             </div>
-            <div class="money"> {output} </div>
+            <Box class="money"> {output} </Box>
+
 
             <Show when={props.controls ?? true}>
-                <Button variant="x" onClick={onCall}>
-                    call ${call()} 😘
-                </Button>
-                <Button variant="x" onClick={() => onBet(bet())}>
-                    bet ${bet()} 💰
-                </Button>
-                <Button variant="x">fold 💩</Button>
+                <Box>
+                    <Show when={call() > 0}>
+                        <Button variant="x" onClick={onCall}>
+                            call ${call()} 😘
+                        </Button>
+                    </Show>
+                    <Show when={call() == 0}>
+                        <Button variant="x" onClick={() => onBet(bet())}>
+                            bet ${bet()} 💰
+                        </Button>
+                    </Show>
+                    <Button variant="x">fold 💩</Button>
 
-                {/* slider */}
-                <div class="slidecontainer">
-                    <input
-                        type="range"
-                        min="1"
-                        max={total()}
-                        value={bet()}
-                        class="slider"
-                        onInput={onSlide}
-                    />
-                </div>
+                    {/* slider */}
+                    <div class="slidecontainer">
+                        <input
+                            type="range"
+                            min="1"
+                            max={Math.min(100, total())}
+                            value={bet()}
+                            class="slider"
+                            onInput={onSlide}
+                        />
+                    </div>
+                </Box>
             </Show>
-        </div>
+
+        </Box>
     )
 }

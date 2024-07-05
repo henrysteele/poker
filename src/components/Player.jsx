@@ -1,4 +1,4 @@
-import { For, createSignal, createEffect, onMount } from "solid-js"
+import { For, createSignal, createEffect, onMount, children } from "solid-js"
 import {
     Box,
     Card,
@@ -83,7 +83,7 @@ export function Player (props) {
                         </Stack>
                         <Stack direction="column">
                             <Money total={props.total} call={call()} name={props.name} />
-                            <Box sx={{ margin: "1em" }}>{props.children}</Box>
+                            <Box sx={{ margin: "1em" }}>{children(props.children)}</Box>
                         </Stack>
                     </Stack>
                 </CardContent>

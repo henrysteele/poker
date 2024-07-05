@@ -81,16 +81,21 @@ export function Grid (props) {
 export function Hand (props) {
 
     return (
-        <div id={props.id || "hand"}>
+        <Box id={props.id || "hand"} alignContent="center">
+
             <Stack direction="row" spacing={1}>
                 <For each={props.cards}>
                     {(id) => <PlayingCard id={id} down={!showingCards().includes(id)}></PlayingCard>}
                 </For>
             </Stack>
+
+
             <Show when={props.cards?.length == 5}>
-                rank: {Math.round(getRank(props.cards).score * 1000) / 1000}
+                <Box>
+                    rank: {Math.round(getRank(props.cards).score * 1000) / 1000}
+                </Box>
             </Show>
-        </div>
+        </Box>
     )
 }
 
