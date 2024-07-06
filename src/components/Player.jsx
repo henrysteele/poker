@@ -11,7 +11,7 @@ import {
 
 import { Money } from "./Money"
 import config from "./config"
-import { setShowingCards, players, setPlayers, pot } from "./DrPokerGame"
+import { setShowingCards, players, setPlayers, pot, hands, bets, wallets } from "./DrPokerGame"
 
 export function Profile (props) {
     return (
@@ -47,23 +47,13 @@ export function Player (props) {
     const [call, setCall] = createSignal(0)
 
     createEffect(() => {
-        let maxBet = 0
-        for (let player of players()) {
-            maxBet = Math.max(maxBet, player.totalBet)
-        }
-        const player = players().find((player) => {
-            return player.name == props.name
-        })
-        setCall(maxBet - player.totalBet)
-        console.log({ player: pot() })
+        let maxBet = Object.values(bets()).reduce((acc, cur) => Math.max(acc, cur), 0)
+        setCall(maxBet - bets()[props.name])
     })
 
 
     function onTada () {
-        const cards = []
-        players().forEach((player) => {
-            cards.push(...player.cards)
-        })
+        const cards = Object.values(hands()).flat(Infinity)
         setShowingCards(cards)
     }
 

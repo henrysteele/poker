@@ -23,6 +23,9 @@ export function Money (props) {
 
     createEffect(() => {
         setTotal(props.total || 0)
+    })
+
+    createEffect(() => {
         setCall(props.call || 0)
     })
 
@@ -56,18 +59,23 @@ export function Money (props) {
         setBet(Math.round(e.target.value)) // ensure it's a number, not a string!
     }
 
+    //todo:  when all 3 bet $1000 the pot is more than $3000
+
     function onBet (amount = 0) {
         amount = Math.max(0, Math.min(amount, total()))
-        tossCoins(amount, `#player-${props.name} .money`, "#dealer .money")
-        setPot(pot() + amount)
-        placeBet(props.name, amount)
-        setBet(Math.min(amount, Math.round(total() / 2)))
-        console.log({ onBet: amount, pot: pot(), total: total() })
+        tossCoins(amount, `#player-${props.name} .money`, "#dealer .money", () => {
+            setPot(pot() + amount)
+            placeBet(props.name, amount)
+            setBet(Math.min(amount, Math.round(total() / 2)))
+        })
     }
 
     function onCall () {
-        console.log({ clicked: "clicked", bet: bet() })
-        onBet(call())
+        const amount = call()
+        tossCoins(amount, `#player-${props.name} .money`, "#dealer .money", () => {
+            setPot(pot() + amount)
+            placeBet(props.name, amount)
+        })
     }
 
     return (
@@ -78,21 +86,21 @@ export function Money (props) {
                 {props.name ? " has " : ""}$
                 {new Intl.NumberFormat("en-US").format(Math.round(total()))}
             </div>
-            <Box class="money"> {output} </Box>
+            <Box class="money"> {output()} </Box>
 
 
             <Show when={props.controls ?? true}>
                 <Box>
-                    <Show when={call() > 0}>
-                        <Button variant="x" onClick={onCall}>
-                            call ${call()} 😘
-                        </Button>
-                    </Show>
-                    <Show when={call() == 0}>
-                        <Button variant="x" onClick={() => onBet(bet())}>
-                            bet ${bet()} 💰
-                        </Button>
-                    </Show>
+
+                    <Button variant="x" onClick={onCall} disabled={call() == 0}>
+                        call {call() ? "$" + call() : ""} 😘
+                    </Button>
+
+
+                    <Button variant="x" onClick={() => onBet(bet())} disabled={call() > 0 || total() == 0}>
+                        bet ${bet()} 💰
+                    </Button>
+
                     <Button variant="x">fold 💩</Button>
 
                     {/* slider */}

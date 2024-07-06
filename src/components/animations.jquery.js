@@ -40,12 +40,13 @@ function getMiddleOffset($elem) {
 	return { top, left }
 }
 
-export function tossCoins(amount, fromSelector, toSelector) {
+export function tossCoins(amount, fromSelector, toSelector, callback) {
 	// animate coin toss
 	let time = 0
 	const wait = 100
+	const n = Math.min(10, amount)
 
-	for (let i = 0; i < Math.min(10, amount); i++) {
+	for (let i = 0; i < n; i++) {
 		setTimeout(() => {
 			tossIt(
 				$coin,
@@ -56,6 +57,10 @@ export function tossCoins(amount, fromSelector, toSelector) {
 			)
 		}, time)
 		time += wait
+	}
+
+	if (callback) {
+		setTimeout(callback, wait * n)
 	}
 }
 

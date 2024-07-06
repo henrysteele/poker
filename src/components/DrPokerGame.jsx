@@ -21,6 +21,9 @@ export const [discards, setDiscards] = createSignal([]) // [ id, ...]
 export const [players, setPlayers] = createSignal([]) // [ { name, cards: [] }, ...]
 export const [grid, setGrid] = createSignal([]) // [id x 9]
 export const [pot, setPot] = createSignal(0)
+export const [hands, setHands] = createSignal({})
+export const [wallets, setWallets] = createSignal({})
+export const [bets, setBets] = createSignal({})
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
@@ -49,7 +52,7 @@ function swapAll (a, b) {
     const accessors = [
         [deck, setDeck],
         [discards, setDiscards],
-        [players, setPlayers],
+        [hands, setHands],
         [grid, setGrid],
     ]
     accessors.forEach((access) => swapSignals(a, b, access))
@@ -79,33 +82,38 @@ function delay (time) {
 }
 
 export function placeBet (name, amount) {
-    const clones = structuredClone(players() || [])
-    const player = clones.find((p) => p.name == name)
-    player.totalBet += amount
-    player.money = Math.max(0, player.money - amount)
-    setPlayers(clones)
+    let tmp = structuredClone(bets())
+    tmp[name] += amount
+    setBets(tmp)
+    tmp = structuredClone(wallets())
+    tmp[name] = Math.max(0, tmp[name] - amount)
+    setWallets(tmp)
 }
 
 
+
 export function DrPokerGame (props) {
+
+    function createMap (attributes, value = "") {
+        const tmp = {}
+        attributes.forEach(attr => { tmp[attr] = structuredClone(value) })
+        return tmp
+    }
+
     function init () {
-        const cards = createCards()
+        const avatars = config.profilenames
         const names = props.names || ["Henry", "Dork", "Dumby"]
-        const peeps = config.profilenames
-        const people = names.map((name, i) => {
-            const src = `/dist/peeps/${peeps[i]}.png`
-            return {
-                name,
-                src,
-                cards: [],
-                money: 1000,
-                totalBet: 0,
-            }
-        })
-        setPlayers(structuredClone(people))
+
+        setPlayers(names.map((name, i) => {
+            const src = `/dist/peeps/${avatars[i]}.png`
+            return { name, src }
+        }))
+        setHands(createMap(names, []))
+        setWallets(createMap(names, config.freemoney || 1000))
+        setBets(createMap(names, 0))
         setGrid([])
         setDiscards([])
-        setDeck(cards)
+        setDeck(createCards())
     }
 
     onMount(init)
@@ -132,14 +140,15 @@ export function DrPokerGame (props) {
         }
 
         // deal 5 cards per player
-        const peeps = structuredClone(players())
+        const names = players().map(player => player.name)
         for (let i = 0; i < 5; i++) {
-            peeps.forEach((player) => {
+            names.forEach((name) => {
                 setTimeout(() => {
                     const id = cards.pop()
-                    tossCard("#" + id, `#${player.name}-hand`, () => {
-                        player.cards.push(id)
-                        setPlayers(structuredClone(peeps))
+                    tossCard("#" + id, `#${name}-hand`, () => {
+                        const clone = structuredClone(hands())
+                        clone[name].push(id)
+                        setHands(clone)
                     })
                 }, time)
                 time += wait
@@ -150,8 +159,8 @@ export function DrPokerGame (props) {
             setDeck([])
             setDeck(cards)
             const list = []
-            peeps.forEach((player) => {
-                list.push(player.cards[0])
+            players().forEach((player) => {
+                list.push(hands()[player.name][0])
             })
             setShowingCards(list)
         }, time)
@@ -195,8 +204,8 @@ export function DrPokerGame (props) {
             <For each={players()}>
                 {(player) => (
                     <>
-                        <Player name={player.name} total={player.money} src={player.src}>
-                            <Hand id={`${player.name}-hand`} cards={player.cards} />
+                        <Player name={player.name} total={wallets()[player.name]} src={player.src}>
+                            <Hand id={`${player.name}-hand`} cards={hands()[player.name]} />
                         </Player>
                     </>
                 )}
