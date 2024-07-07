@@ -123,3 +123,7 @@
     /* Cursor on hover */
     border-radius: 50%;
 }
+
+.hideSlider {
+    opacity: 50%
+}
