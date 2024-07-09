@@ -2,8 +2,8 @@ import { createCards, dealCards, bestHand, getRank } from "./cards"
 import { For, createSignal, createEffect, onMount } from "solid-js"
 import { Box, Card, Stack, CardContent, CardActions, Container } from "@suid/material"
 import { FlipIt, FlipFront, FlipBack } from "./FlipIt"
-import { Selectable } from "./Selectable"
-import { showingCards } from './DrPokerGame'
+import { Selectable, selectedIds } from "./Selectable"
+import { showingCards, topCard } from './DrPokerGame'
 
 import config from "./config"
 
@@ -13,31 +13,52 @@ export function DeckOfCards (props) {
 
     createEffect(() => {
         console.log({ DeckOfCards: props.cards })
-        setCards(props.cards)
+        const dummies = props.discard && props.cards.length < 10 ? [] : "#####".split("")
+        setCards([...dummies, ...props.cards])
     })
 
+    function getDown (id) {
+        if (id != topCard()) return true
+        return !(selectedIds().includes(id))
+    }
+
     return (
-        <Box id="deck" sx={{ width: "70px" }}>
+        <Box id={"deck"} sx={{ width: "70px" }}>
             <div style={{ position: "relative", height: "100px" }}>
                 <For each={cards()}>
                     {(card, i) => {
-                        let style = (props.discard) ?
-                            {
-                                position: "absolute",
-                                transform: `rotate(${-25 + Math.round(Math.random() * 50)}deg)`,
-                                top: `${Math.floor(Math.random() * 15)}px`,
-                                left: `${Math.floor(Math.random() * 15)}px`
-                            } : {
-                                position: "absolute",
-                                top: `${Math.min(15, i() * 3)}px`,
-                                left: `${Math.min(15, i() * 3)}px`
-                            }
-
-                        return <PlayingCard id={card} style={style} down={!props.discard}></PlayingCard>
+                        let style = {
+                            position: "absolute",
+                            top: `${Math.min(15, i() * 3)}px`,
+                            left: `${Math.min(15, i() * 3)}px`
+                        }
+                        return <PlayingCard id={card} style={style} down={getDown(card)}></PlayingCard>
                     }}
                 </For>
             </div>
 
+        </Box>
+    )
+}
+
+export function Discards (props) {
+
+    return (
+        <Box id={"discards"} sx={{ width: "70px" }}>
+            <div style={{ position: "relative", height: "100px" }}>
+                <For each={props.cards}>
+                    {(card, i) => {
+                        let style =
+                        {
+                            position: "absolute",
+                            transform: `rotate(${-25 + Math.round(Math.random() * 50)}deg)`,
+                            top: `${Math.floor(Math.random() * 15)}px`,
+                            left: `${Math.floor(Math.random() * 15)}px`
+                        }
+                        return <PlayingCard id={card} style={style} down={false}></PlayingCard>
+                    }}
+                </For>
+            </div>
         </Box>
     )
 }

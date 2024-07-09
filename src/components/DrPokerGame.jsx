@@ -1,4 +1,4 @@
-import { For, createSignal, createEffect, onMount } from "solid-js"
+import { For, createSignal, createEffect, onMount, children } from "solid-js"
 import {
     Box,
     Card,
@@ -6,14 +6,14 @@ import {
     CardContent,
     CardActions,
     Container,
-    Button,
+    Button
 } from "@suid/material"
 import $ from "jquery"
 import config from "./config"
 import { createCards, bestHand, getRank } from "./cards"
 import { selectedIds, setSelectedIds } from "./Selectable"
 import { Player, Dealer } from "./Player"
-import { PlayingCard, DeckOfCards, Grid, Hand } from "./PlayingCards"
+import { PlayingCard, DeckOfCards, Discards, Grid, Hand } from "./PlayingCards"
 import { tossCard } from "./animations.jquery"
 
 export const [deck, setDeck] = createSignal([]) //[ id, ... ]
@@ -26,6 +26,11 @@ export const [wallets, setWallets] = createSignal({})
 export const [bets, setBets] = createSignal({})
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
+
+export function topCard () {
+    const len = deck().length
+    return deck()[len - 1]
+}
 
 
 /**
@@ -48,14 +53,25 @@ function swapSignals (a, b, accessors) {
     return false
 }
 
-function swapAll (a, b) {
+function swapAll (list) {
     const accessors = [
         [deck, setDeck],
         [discards, setDiscards],
         [hands, setHands],
         [grid, setGrid],
     ]
-    accessors.forEach((access) => swapSignals(a, b, access))
+    accessors.forEach((access) => {
+        const len = list.length
+        // swap 1&2 then 2&3, etc.
+        for (let i = 0; i < len - 1; i++) {
+            swapSignals(list[i], list[i + 1], access)
+        }
+        // swap last with the first
+        if (len > 2) {
+            swapSignals(list[len - 1], list[0], access)
+        }
+    })
+
 }
 
 function tossCards (list, callback, i = 0) {
@@ -170,15 +186,43 @@ export function DrPokerGame (props) {
         }, 20000)
     }
 
+    // exchange cards
     createEffect(() => {
-        const ids = selectedIds()
+        const ids = [...selectedIds()]
+        const otherCard = ids.filter(card => card != topCard())[0]
+
         if (ids.length == 2) {
+
             console.log({ selected: ids })
 
-            tossCards(ids, () => {
-                swapAll(...ids)
-                setSelectedIds([])
-            })
+            // deck should only show top card and 5 fake cards underneath
+            // you can only select the deck if selectedIds.length == 0
+            // it flips and then you cannot unselect it
+
+            if (ids.includes(topCard())) {
+
+                tossCard("#" + topCard, "#" + otherCard, () => {
+                    tossCard("#" + otherCard, "#discards", () => {
+                        swapCards([topCard, otherCard])
+                        setDeck(deck) // remove otherCard from deck
+                        setDiscards([...discards(), otherCard]) // put otherCard in discards
+                    })
+                    setSelectedIds([])
+                })
+
+                // setTimeout(() => {
+                //     setShowingCards(showingCards().filter(card => !card != topCard))
+                // }, 3000)
+
+            } else {
+                // swap two cards
+                tossCards(ids, () => {
+                    swapAll(ids)
+                    setSelectedIds([])
+                })
+            }
+            // }
+            //
         }
     })
 
@@ -192,7 +236,7 @@ export function DrPokerGame (props) {
                 <Stack direction="row" spacing={2}>
                     <Stack direction="column" spacing={2}>
                         <DeckOfCards cards={deck()} />
-                        <DeckOfCards cards={discards()} discard />
+                        <Discards cards={discards()} />
                     </Stack>
                     <Grid
                         list={grid()}
@@ -211,7 +255,7 @@ export function DrPokerGame (props) {
                 )}
             </For>
 
-            {props.children}
+            {children(props.children)}
         </div>
     )
 }
