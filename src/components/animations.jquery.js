@@ -26,6 +26,7 @@ export function tossIt(it, from, to, callback, audio, volume = 0.1) {
 		.animate(to, speed, () => {
 			$clone.remove()
 			callback?.call()
+			$it.css("opacity", 1)
 		})
 }
 

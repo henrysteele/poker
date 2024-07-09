@@ -27,9 +27,8 @@ export const [bets, setBets] = createSignal({})
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
-export function topCard () {
-    const len = deck().length
-    return deck()[len - 1]
+export function topCard (cards = deck()) {
+    return cards[- 1]
 }
 
 
@@ -68,7 +67,7 @@ function swapAll (list) {
         }
         // swap last with the first
         if (len > 2) {
-            swapSignals(list[len - 1], list[0], access)
+            swapSignals(list[-1], list[0], access)
         }
     })
 

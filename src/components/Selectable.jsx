@@ -1,5 +1,5 @@
 import { createSignal, createEffect, children } from "solid-js"
-import { showingCards, deck, topCard } from './DrPokerGame'
+import { showingCards, deck, topCard, grid, discards } from './DrPokerGame'
 
 export const [selectedIds, setSelectedIds] = createSignal([]) //[id]
 
@@ -14,6 +14,17 @@ export function Selectable (props) {
 
     createEffect(() => {
         const id = props.id
+
+        if (selectedIds().length == 1) {
+            const selected = selectedIds()[0]
+            const selectedIsDiscarded = grid().includes(selected) || discards().includes(selected)
+            const iAmDiscarded = grid().includes(id) || discards().includes(id)
+            if (iAmDiscarded && selectedIsDiscarded) {
+                setSelectable(false)
+                return
+            }
+        }
+
         setSelectable(id != topCard() || id == topCard() && selectedIds().length == 0)
     })
 

@@ -103,7 +103,6 @@ export function Hand (props) {
 
     return (
         <Box id={props.id || "hand"} alignContent="center">
-
             <Stack direction="row" spacing={1}>
                 <For each={props.cards}>
                     {(id) => <PlayingCard id={id} down={!showingCards().includes(id)}></PlayingCard>}
