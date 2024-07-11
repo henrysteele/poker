@@ -28,7 +28,7 @@ export const [bets, setBets] = createSignal({})
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
 export function topCard (cards = deck()) {
-    return cards[- 1]
+    return cards.slice(-1)[0]
 }
 
 
@@ -52,7 +52,7 @@ function swapSignals (a, b, accessors) {
     return false
 }
 
-function swapAll (list) {
+function swapAllSignals (list, loop = false) {
     const accessors = [
         [deck, setDeck],
         [discards, setDiscards],
@@ -66,8 +66,8 @@ function swapAll (list) {
             swapSignals(list[i], list[i + 1], access)
         }
         // swap last with the first
-        if (len > 2) {
-            swapSignals(list[-1], list[0], access)
+        if (loop && len > 2) {
+            swapSignals(list[len - 1], list[0], access)
         }
     })
 
@@ -86,8 +86,19 @@ function tossCards (list, callback, i = 0) {
             tossCards(list, callback, i + 1)
         })
     }
-    if (i == len - 1)
-        tossCard("#" + list[list.length - 1], "#" + list[0], callback)
+
+
+    if (i == len - 1) {
+        const lastStop = list[len - 1]
+        if (!"♠♥♣♦".includes(lastStop.slice(-1))) {
+            // not a card, don't animate, just callback
+            callback?.call()
+            return
+        } else {
+            tossCard("#" + lastStop, "#" + list[0], callback)
+        }
+    }
+
 }
 
 
@@ -123,6 +134,8 @@ export function DrPokerGame (props) {
             const src = `/dist/peeps/${avatars[i]}.png`
             return { name, src }
         }))
+        setSelectedIds([])
+        setShowingCards([])
         setHands(createMap(names, []))
         setWallets(createMap(names, config.freemoney || 1000))
         setBets(createMap(names, 0))
@@ -187,26 +200,26 @@ export function DrPokerGame (props) {
 
     // exchange cards
     createEffect(() => {
-        const ids = [...selectedIds()]
+        let ids = [...selectedIds()]
         const otherCard = ids.filter(card => card != topCard())[0]
+
+        if (grid().length == 0 // haven't dealt yet
+            && selectedIds().includes(topCard())) {
+            onDeal()
+        }
 
         if (ids.length == 2) {
 
-            console.log({ selected: ids })
-
-            // deck should only show top card and 5 fake cards underneath
-            // you can only select the deck if selectedIds.length == 0
-            // it flips and then you cannot unselect it
-
             if (ids.includes(topCard())) {
-
-                tossCard("#" + topCard, "#" + otherCard, () => {
-                    tossCard("#" + otherCard, "#discards", () => {
-                        swapCards([topCard, otherCard])
-                        setDeck(deck) // remove otherCard from deck
-                        setDiscards([...discards(), otherCard]) // put otherCard in discards
-                    })
-                    setSelectedIds([])
+                const cards = [...deck()]  // clone the deck
+                const top = cards.pop() // remove topCard from deck
+                const list = [top, otherCard, "discards"]
+                tossCards(list, () => {
+                    const temp = JSON.stringify(hands())
+                    setHands(JSON.parse(temp.replace(otherCard, top))) // put top in hand
+                    setDeck(cards) // remove top from deck
+                    setDiscards([...discards(), otherCard]) // put otherCard in discards
+                    setSelectedIds(ids = []) // important since this effect is called twice
                 })
 
                 // setTimeout(() => {
@@ -216,8 +229,8 @@ export function DrPokerGame (props) {
             } else {
                 // swap two cards
                 tossCards(ids, () => {
-                    swapAll(ids)
-                    setSelectedIds([])
+                    swapAllSignals(ids)
+                    setSelectedIds(ids = []) // important since this effect is called twice
                 })
             }
             // }

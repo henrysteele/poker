@@ -31,8 +31,9 @@ export function tossIt(it, from, to, callback, audio, volume = 0.1) {
 }
 
 function getMiddleOffset($elem) {
-	if (!$elem) return {}
 	$elem = $($elem)
+	if (!$elem?.length) return {}
+
 	const height = $elem.height()
 	const width = $elem.width()
 	let { top, left } = $elem.offset()

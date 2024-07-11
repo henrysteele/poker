@@ -14,18 +14,27 @@ export function Selectable (props) {
 
     createEffect(() => {
         const id = props.id
+        const iAmTopCard = id == topCard()
 
-        if (selectedIds().length == 1) {
+        if (selectedIds().includes(id)) {  // you can always unselect, unless it's topcard
+            setSelectable(id != topCard())
+            return
+        } else if (selectedIds().length == 0 && iAmTopCard) {
+            setSelectable(true)
+            return
+        } else if (selectedIds().length == 1) {
             const selected = selectedIds()[0]
             const selectedIsDiscarded = grid().includes(selected) || discards().includes(selected)
             const iAmDiscarded = grid().includes(id) || discards().includes(id)
-            if (iAmDiscarded && selectedIsDiscarded) {
+
+            // can't swap with the deck or other discards
+            if (iAmTopCard || iAmDiscarded && selectedIsDiscarded) {
                 setSelectable(false)
                 return
             }
         }
-
-        setSelectable(id != topCard() || id == topCard() && selectedIds().length == 0)
+        // else
+        setSelectable(!iAmTopCard) // topcard can only be the first selected
     })
 
     createEffect(() => {
