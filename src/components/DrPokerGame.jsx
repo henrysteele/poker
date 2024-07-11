@@ -24,6 +24,7 @@ export const [pot, setPot] = createSignal(0)
 export const [hands, setHands] = createSignal({})
 export const [wallets, setWallets] = createSignal({})
 export const [bets, setBets] = createSignal({})
+export const [activePlayer, setActivePlayer] = createSignal("dealer")
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
@@ -129,6 +130,7 @@ export function DrPokerGame (props) {
         setGrid([])
         setDiscards([])
         setDeck(createCards())
+        setActivePlayer(names[0])
     }
 
     onMount(init)
@@ -222,6 +224,12 @@ export function DrPokerGame (props) {
             }
             // }
             //
+
+            // next player
+            const names = players().map(player => player.name)
+            let i = names.indexOf(activePlayer()) + 1
+            if (i == names.length) i = 0
+            setActivePlayer(names[i])
         }
     })
 

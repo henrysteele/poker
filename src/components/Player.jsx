@@ -19,9 +19,10 @@ import {
   hands,
   bets,
   wallets,
+  activePlayer
 } from "./DrPokerGame"
 
-export function Profile(props) {
+export function Profile (props) {
   return (
     <div>
       <div
@@ -29,13 +30,14 @@ export function Profile(props) {
           ...config.style.profile.image,
           ...props.style,
           background: `url(${props.src})`,
+          ...(activePlayer() == props.name ? { "box-shadow": "#82a21c 0px 0px 30px" } : {})
         }}
       ></div>
     </div>
   )
 }
 
-export function Dealer(props) {
+export function Dealer (props) {
   return (
     <Box id={`dealer`} sx={{ margin: "1em", display: "inline-block" }}>
       <Card sx={{ padding: "1em", width: "fit-content" }}>
@@ -51,7 +53,7 @@ export function Dealer(props) {
   )
 }
 
-export function Player(props) {
+export function Player (props) {
   const [call, setCall] = createSignal(0)
 
   createEffect(() => {
@@ -62,15 +64,24 @@ export function Player(props) {
     setCall(maxBet - bets()[props.name])
   })
 
-  function onTada() {
+  function onTada () {
     const cards = Object.values(hands()).flat(Infinity)
     setShowingCards(cards)
   }
 
+  const disabled = {
+    "pointer-events": "none",
+    opacity: 0.5
+  }
+
   return (
     <Box
+
       id={`player-${props.name}`}
-      sx={{ display: "inline-block", margin: "1em" }}
+      sx={{
+        display: "inline-block", margin: "1em",
+        ...(activePlayer() != props.name ? disabled : {})
+      }}
     >
       <Card sx={{ width: "fit-content" }}>
         <CardContent>
@@ -90,5 +101,6 @@ export function Player(props) {
         <CardActions></CardActions>
       </Card>
     </Box>
+
   )
 }
