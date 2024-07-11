@@ -32,45 +32,32 @@ export function topCard (cards = deck()) {
 }
 
 
-/**
- *
- * refresh, deal, nextplayer, bet
- */
+// everywhere cards can live
+const accessors = [
+    [deck, setDeck],
+    [discards, setDiscards],
+    [hands, setHands],
+    [grid, setGrid],
+]
 
-function swapSignals (a, b, accessors) {
-    const [get, set] = accessors
-    const original = JSON.stringify(get())
-    const temp = b.split("").join("**")
-    const replaced = original
-        .replaceAll(a, temp)
-        .replaceAll(b, a)
-        .replaceAll(temp, b)
-    if (original != replaced) {
-        set(JSON.parse(replaced))
-        return true
-    }
-    return false
+function replaceCards (a, b) {
+    accessors.forEach((access) => {
+        const json = JSON.stringify(access[0]())
+        access[1](JSON.parse(json.replace(a, b)))
+    })
 }
 
-function swapAllSignals (list, loop = false) {
-    const accessors = [
-        [deck, setDeck],
-        [discards, setDiscards],
-        [hands, setHands],
-        [grid, setGrid],
-    ]
-    accessors.forEach((access) => {
-        const len = list.length
-        // swap 1&2 then 2&3, etc.
-        for (let i = 0; i < len - 1; i++) {
-            swapSignals(list[i], list[i + 1], access)
-        }
-        // swap last with the first
-        if (loop && len > 2) {
-            swapSignals(list[len - 1], list[0], access)
-        }
-    })
-
+function swapCards (a, b) {
+    const temp = a.split("").join("**")
+    let all = JSON.stringify(accessors.map(access => access[0]()))
+    all = all.replace(a, temp)
+    all = all.replace(b, a)
+    all = all.replace(temp, b)
+    const data = JSON.parse(all)
+    const setters = accessors.map(access => access[1])
+    for (let i = 0; i < setters.length; i++) {
+        setters[i](data[i])
+    }
 }
 
 function tossCards (list, callback, i = 0) {
@@ -214,23 +201,23 @@ export function DrPokerGame (props) {
                 const cards = [...deck()]  // clone the deck
                 const top = cards.pop() // remove topCard from deck
                 const list = [top, otherCard, "discards"]
+                setSelectedIds(ids = []) // important since this effect is called twice
                 tossCards(list, () => {
-                    const temp = JSON.stringify(hands())
-                    setHands(JSON.parse(temp.replace(otherCard, top))) // put top in hand
+                    replaceCards(otherCard, top)
                     setDeck(cards) // remove top from deck
                     setDiscards([...discards(), otherCard]) // put otherCard in discards
-                    setSelectedIds(ids = []) // important since this effect is called twice
                 })
 
-                // setTimeout(() => {
-                //     setShowingCards(showingCards().filter(card => !card != topCard))
-                // }, 3000)
+                setTimeout(() => {
+                    setShowingCards(showingCards().filter(card => !card != topCard))
+                }, 3000)
 
             } else {
                 // swap two cards
-                tossCards(ids, () => {
-                    swapAllSignals(ids)
-                    setSelectedIds(ids = []) // important since this effect is called twice
+                const temp = [...ids]
+                setSelectedIds(ids = []) // important since this effect is called twice
+                tossCards(temp, () => {
+                    swapCards(...temp)
                 })
             }
             // }
