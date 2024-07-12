@@ -117,7 +117,7 @@ export function DrPokerGame (props) {
 
     function init () {
         const avatars = config.profilenames
-        const names = props.names || ["Henry", "Dork", "Dumby"]
+        const names = props.names || ["Henry", "Lord Vader"]
 
         setPlayers(names.map((name, i) => {
             const src = `/dist/peeps/${avatars[i]}.png`
@@ -191,7 +191,6 @@ export function DrPokerGame (props) {
     // exchange cards
     createEffect(() => {
         let ids = [...selectedIds()]
-        const otherCard = ids.filter(card => card != topCard())[0]
 
         if (grid().length == 0 // haven't dealt yet
             && selectedIds().includes(topCard())) {
@@ -199,16 +198,21 @@ export function DrPokerGame (props) {
         }
 
         if (ids.length == 2) {
-
             if (ids.includes(topCard())) {
+                const otherCard = ids.filter(card => card != topCard())[0]
+                const otherIsDiscarded = discards().includes(otherCard)
                 const cards = [...deck()]  // clone the deck
                 const top = cards.pop() // remove topCard from deck
                 const list = [top, otherCard, "discards"]
                 setSelectedIds(ids = []) // important since this effect is called twice
                 tossCards(list, () => {
-                    replaceCards(otherCard, top)
+                    if (otherIsDiscarded) {
+                        setDiscards([...discards(), top]) // put top in discards
+                    } else {
+                        replaceCards(otherCard, top)
+                        setDiscards([...discards(), otherCard]) // put otherCard in discards
+                    }
                     setDeck(cards) // remove top from deck
-                    setDiscards([...discards(), otherCard]) // put otherCard in discards
                 })
 
                 setTimeout(() => {
