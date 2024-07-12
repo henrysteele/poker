@@ -68,7 +68,7 @@ export function Money (props) {
   function onBet (amount = 0) {
     setBusy(true)
     amount = Math.max(0, Math.min(amount, total()))
-    tossCoins(amount, `#player-${props.name} .money`, "#dealer .money", () => {
+    tossCoins(amount, `#player-${props.name.replaceAll(/[^\w]+/g, "")} .money`, "#dealer .money", () => {
       setPot(pot() + amount)
       placeBet(props.name, amount)
       setBet(Math.min(amount, Math.round(total() / 2)))
@@ -81,7 +81,7 @@ export function Money (props) {
     setBusy(true)
     const amount = call()
     setCall(0)
-    tossCoins(amount, `#player-${props.name} .money`, "#dealer .money", () => {
+    tossCoins(amount, `#player-${props.name.replaceAll(/[^\w]+/g, "")} .money`, "#dealer .money", () => {
       setPot(pot() + amount)
       placeBet(props.name, amount)
       setBusy(false)

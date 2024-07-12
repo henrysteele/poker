@@ -163,7 +163,7 @@ export function DrPokerGame (props) {
             names.forEach((name) => {
                 setTimeout(() => {
                     const id = cards.pop()
-                    tossCard("#" + id, `#${name}-hand`, () => {
+                    tossCard("#" + id, `#${name.replaceAll(/[^\w]+/g, "")}-hand`, () => {
                         const clone = structuredClone(hands())
                         clone[name].push(id)
                         setHands(clone)
@@ -262,7 +262,7 @@ export function DrPokerGame (props) {
                 {(player) => (
                     <>
                         <Player name={player.name} total={wallets()[player.name]} src={player.src}>
-                            <Hand id={`${player.name}-hand`} cards={hands()[player.name]} />
+                            <Hand id={`${player.name.replaceAll(/[^\w]+/g, "")}-hand`} cards={hands()[player.name]} />
                         </Player>
                     </>
                 )}

@@ -79,7 +79,7 @@ export function Player (props) {
   return (
     <Box
 
-      id={`player-${props.name}`}
+      id={`player-${props.name.replaceAll(/[^\w]+/g, "")}`}
       sx={{
         display: "inline-block", margin: "1em", userSelect: "none",
         ...(activePlayer() != props.name ? disabled : {})
