@@ -41,7 +41,7 @@ export function Profile (props) {
 export function Dealer (props) {
 
   return (
-    <Box id={`dealer`} sx={{ margin: "1em", display: "inline-block" }}>
+    <Box id={`dealer`} sx={{ margin: "1em", display: "inline-block", float: "left" }}>
       <Card sx={{ padding: "1em", width: "fit-content", userSelect: "none" }}>
         <CardContent>
           <Stack direction="row">

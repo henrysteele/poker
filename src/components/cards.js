@@ -213,6 +213,15 @@ function runSanityTest() {
 	const b = getRank("JH,JD,3H,3D,2S".split(","))
 
 	console.log({ "2pairTest": a.score < b.score, a, b })
+
+	const three2s = getRank("2H,2D,2C,3D,2S".split(","))
+	const twoAs2Ks = getRank("AH,AD,KH,KD,2S".split(","))
+
+	console.log({
+		"2pair vs 3kind": twoAs2Ks.score < three2s.score,
+		twoAs2Ks,
+		three2s,
+	})
 }
 
 // runSanityTest()
