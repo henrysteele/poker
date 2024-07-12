@@ -25,6 +25,7 @@ export const [hands, setHands] = createSignal({})
 export const [wallets, setWallets] = createSignal({})
 export const [bets, setBets] = createSignal({})
 export const [activePlayer, setActivePlayer] = createSignal("dealer")
+export const [status, setStatus] = createSignal("Click the deck to deal")
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
@@ -230,6 +231,7 @@ export function DrPokerGame (props) {
             let i = names.indexOf(activePlayer()) + 1
             if (i == names.length) i = 0
             setActivePlayer(names[i])
+            setStatus(`It's ${activePlayer()}'s turn`)
         }
     })
 

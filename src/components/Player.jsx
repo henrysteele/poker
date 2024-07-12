@@ -19,7 +19,7 @@ import {
   hands,
   bets,
   wallets,
-  activePlayer
+  activePlayer, status
 } from "./DrPokerGame"
 
 export function Profile (props) {
@@ -33,11 +33,13 @@ export function Profile (props) {
           ...(activePlayer() == props.name ? { "box-shadow": "#82a21c 0px 0px 30px" } : {})
         }}
       ></div>
+      <div>{status()}</div>
     </div>
   )
 }
 
 export function Dealer (props) {
+
   return (
     <Box id={`dealer`} sx={{ margin: "1em", display: "inline-block" }}>
       <Card sx={{ padding: "1em", width: "fit-content" }}>
