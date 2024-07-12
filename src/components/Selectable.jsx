@@ -42,6 +42,7 @@ export function Selectable (props) {
         const temp = {
             ...props.style,
             ...(selected() ? { transform: "rotate(-15deg)" } : {}),
+            ...(selected() && discards().includes(id) ? { top: "-10px" } : {}),
             cursor: selectable() ? "grab" : "not-allowed"
         }
         setSx(temp)

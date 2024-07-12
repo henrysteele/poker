@@ -42,7 +42,7 @@ export function Dealer (props) {
 
   return (
     <Box id={`dealer`} sx={{ margin: "1em", display: "inline-block" }}>
-      <Card sx={{ padding: "1em", width: "fit-content" }}>
+      <Card sx={{ padding: "1em", width: "fit-content", userSelect: "none" }}>
         <CardContent>
           <Stack direction="row">
             <Profile name="dealer" src="/dist/peeps/dealer.png" />
@@ -81,11 +81,14 @@ export function Player (props) {
 
       id={`player-${props.name}`}
       sx={{
-        display: "inline-block", margin: "1em",
+        display: "inline-block", margin: "1em", userSelect: "none",
         ...(activePlayer() != props.name ? disabled : {})
       }}
     >
-      <Card sx={{ width: "fit-content" }}>
+      <Card sx={{
+        ...{ width: "fit-content" },
+        ...(activePlayer() == props.name ? { boxShadow: "0px 2px 1px -1px green, 0px 1px 1px 0px green, 0px 1px 3px 0px green" } : {})
+      }}>
         <CardContent>
           <Stack direction="row">
             <Stack direction="column">
@@ -96,7 +99,7 @@ export function Player (props) {
             </Stack>
             <Stack direction="column">
               <Money total={props.total} call={call()} name={props.name} />
-              <Box sx={{ margin: "1em" }}>{children(props.children)}</Box>
+              <Box sx={{ margin: "1em", ...(call() ? disabled : {}) }}>{children(props.children)}</Box>
             </Stack>
           </Stack>
         </CardContent>
