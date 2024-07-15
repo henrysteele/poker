@@ -14,8 +14,9 @@ import { pot, setPot, placeBet } from "./DrPokerGame"
 import $ from "jquery"
 import config from "./config"
 import { tossCoins } from "./animations.jquery"
+import { createMap } from "./helpers"
 
-export function Money(props) {
+export function Money (props) {
   const [output, setOutput] = createSignal([])
   const [total, setTotal] = createSignal(props.total)
   const [bet, setBet] = createSignal(5)
@@ -61,16 +62,16 @@ export function Money(props) {
     setOutput(out)
   })
 
-  function onSlide(e) {
+  function onSlide (e) {
     setBet(Math.round(e.target.value)) // ensure it's a number, not a string!
   }
 
-  function onBet(amount = 0) {
+  function onBet (amount = 0) {
     setBusy(true)
     amount = Math.max(0, Math.min(amount, total()))
     tossCoins(
       amount,
-      `#player-${props.name.replaceAll(/[^\w]+/g, "")} .money`,
+      `#player-${props.name.condense()} .money`,
       "#dealer .money",
       () => {
         setPot(pot() + amount)
@@ -81,14 +82,14 @@ export function Money(props) {
     )
   }
 
-  function onCall() {
+  function onCall () {
     if (call() == 0) return
     setBusy(true)
     const amount = call()
     setCall(0)
     tossCoins(
       amount,
-      `#player-${props.name.replaceAll(/[^\w]+/g, "")} .money`,
+      `#player-${props.name.condense()} .money`,
       "#dealer .money",
       () => {
         setPot(pot() + amount)
