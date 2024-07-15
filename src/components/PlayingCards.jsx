@@ -110,7 +110,7 @@ export function Hand (props) {
             </Stack>
 
 
-            <Show when={props.cards?.length == 5}>
+            <Show when={false && props.cards?.length == 5}>
                 <Box>
                     rank: {Math.round(getRank(props.cards).score * 1000) / 1000}
                 </Box>
