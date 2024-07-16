@@ -237,6 +237,7 @@ export function DrPokerGame (props) {
             setActivePlayer(names[i])
             setStatus(`It's ${activePlayer()}'s turn`)
         }
+
     })
 
     return (

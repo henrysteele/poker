@@ -19,8 +19,10 @@ import {
   hands,
   bets,
   wallets,
-  activePlayer, status
+  activePlayer, status,
+  setStatus
 } from "./DrPokerGame"
+import { getRank } from "./cards"
 
 export function Profile (props) {
   return (
@@ -66,9 +68,23 @@ export function Player (props) {
     setCall(maxBet - bets()[props.name])
   })
 
+    function winner () {
+      let maxScore = 0
+      let winningName = "" 
+        for (let name in hands()) {
+          const rank = getRank(hands()[name]).score
+          if (rank > maxScore) {
+            maxScore = rank
+            winningName = name
+          }
+      }
+      return winningName
+    }
+
   function onTada () {
     const cards = Object.values(hands()).flat(Infinity)
     setShowingCards(cards)
+    setStatus(winner() + " won!")
   }
 
   const disabled = {
@@ -93,7 +109,7 @@ export function Player (props) {
           <Stack direction="row">
             <Stack direction="column">
               <Profile name={props.name} src={props.src} />
-              <Button variant="xcontained" onClick={onTada}>
+              <Button variant="xcontained" onClick={onTada} disabled={call() != 0}>
                 💥 tada!
               </Button>
             </Stack>
