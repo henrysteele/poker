@@ -25,7 +25,11 @@ import {
   setPot,
   setActivePlayer
 } from "./DrPokerGame"
+
+import { createMap } from "./helpers"
+
 import { getRank } from "./cards"
+
 
 export function Profile (props) {
   return (
@@ -103,7 +107,7 @@ export function Player (props) {
   return (
     <Box
 
-      id={`player-${props.name.replaceAll(/[^\w]+/g, "")}`}
+      id={`player-${props.name.condense()}`}
       sx={{
         display: "inline-block", margin: "1em", userSelect: "none",
         ...(activePlayer() != props.name ? disabled : {})
