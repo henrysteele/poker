@@ -137,11 +137,20 @@ export function DrPokerGame (props) {
     onMount(init)
 
     function onDeal () {
-        init()
         const cards = structuredClone(deck())
         const nine = [...grid()]
         const wait = 200
         let time = 0
+
+          const names = players().map(player => player.name)
+      
+        setSelectedIds([])
+        setShowingCards([])
+        setHands(createMap(names, []))
+        setBets(createMap(names, 0))
+        setGrid([])
+        setDiscards([])
+        setDeck(createCards())
 
         setDiscards([cards.pop()])
 
@@ -158,7 +167,7 @@ export function DrPokerGame (props) {
         }
 
         // deal 5 cards per player
-        const names = players().map(player => player.name)
+      
         for (let i = 0; i < 5; i++) {
             names.forEach((name) => {
                 setTimeout(() => {
