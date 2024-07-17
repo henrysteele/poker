@@ -38,8 +38,8 @@ export function dealCards(cards, players, count = 5) {
 	return players
 }
 
-export function getRank(hand) {
-	if (!hand?.length) return 0
+export function getRank(cards) {
+	if (!cards?.length) return 0
 
 	const mapsuits = {
 		"♠": "S",
@@ -52,7 +52,7 @@ export function getRank(hand) {
 		D: "D",
 	}
 
-	let cards = hand.map((card) => ({
+	cards = cards.map((card) => ({
 		rank: card.slice(0, -1).toUpperCase().replace("10", "T"),
 		suit: mapsuits[card.slice(-1).toUpperCase()],
 	}))
@@ -94,7 +94,7 @@ export function getRank(hand) {
 
 	if (isFlush() && isStraight()) {
 		score = 9000 + ranks.indexOf(cards[0].rank)
-		type = hand.join("").includes("A")
+		type = cards.join("").includes("A")
 			? "royal straight flush"
 			: "straight flush"
 	} else if (values.includes(4)) {
@@ -145,7 +145,7 @@ export function getRank(hand) {
 		score += suits.indexOf(remainingCards[i].suit) * Math.pow(0.015, i + 1) // Add suit value with lower weight
 	}
 
-	return { hand, score, type }
+	return { hand: cards, score, type }
 }
 
 export function bestHand(hands) {
