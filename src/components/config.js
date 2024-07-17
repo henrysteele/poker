@@ -44,7 +44,7 @@ export default {
 			// transform: "rotateY(180deg)",
 			// transition: "transform 0.5s",
 			background: "white",
-			"background-image": "url(/dist/cards/xmasjoker.back.jpg)",
+			"background-image": "url(/dist/cards/bicycle.back.png)",
 			"background-size": "cover",
 			"background-color": "white",
 			"backface-visibility": "hidden",

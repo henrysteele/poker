@@ -2,10 +2,10 @@ import $ from "jquery"
 import config from "./config"
 
 const $coin = $(`<img height="12px" src="/dist/coins/1.png">`)
-const $coinAudio = $(`<audio preload src="/dist/audio/coin.m4a">`)
+const $coinAudio = $(`<audio preload src="/dist/audio/coin.guitar.m4a">`)
 const $cardAudio = $(`<audio preload src="/dist/audio/card.m4a">`)
 
-export function tossIt(it, from, to, callback, audio, volume = 0.1) {
+export function tossIt(it, from, to, callback, audio, volume = 0.5) {
 	if (audio) {
 		audio = $(audio).clone()[0]
 		audio.volume = volume
@@ -95,6 +95,7 @@ export function tossCard(fromSelector, toSelector, callback) {
 		getMiddleOffset(fromSelector),
 		getMiddleOffset(toSelector),
 		callback,
-		$cardAudio
+		$cardAudio,
+		0.1
 	)
 }
