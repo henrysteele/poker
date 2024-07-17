@@ -19,8 +19,11 @@ import {
   hands,
   bets,
   wallets,
+  setWallets,
   activePlayer, status,
-  setStatus
+  setStatus,
+  setPot,
+  setActivePlayer
 } from "./DrPokerGame"
 import { getRank } from "./cards"
 
@@ -85,6 +88,11 @@ export function Player (props) {
     const cards = Object.values(hands()).flat(Infinity)
     setShowingCards(cards)
     setStatus(winner() + " won!")
+    setActivePlayer("")
+    let temp = structuredClone(wallets()) 
+    temp[winner()] += pot()
+    setWallets(temp)
+    setPot(0)
   }
 
   const disabled = {

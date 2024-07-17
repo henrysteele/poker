@@ -172,6 +172,8 @@ export function DrPokerGame (props) {
                 time += wait
             })
         }
+        
+        setActivePlayer(names[0])
 
         setTimeout(() => {
             setDeck([])
