@@ -15,6 +15,7 @@ import { selectedIds, setSelectedIds } from "./Selectable"
 import { Player, Dealer } from "./Player"
 import { PlayingCard, DeckOfCards, Discards, Grid, Hand } from "./PlayingCards"
 import { tossCard } from "./animations.jquery"
+import { SignIn, userName, clickClerk, setShowPopUp, user } from "./Clerk"
 
 export const [deck, setDeck] = createSignal([]) //[ id, ... ]
 export const [discards, setDiscards] = createSignal([]) // [ id, ...]
@@ -241,9 +242,9 @@ export function DrPokerGame (props) {
 
     return (
         <div>
-            <Box>
+            <Stack direction="row" spacing={2}>
                 <Button onClick={onDeal}>deal cards</Button>
-            </Box>
+            </Stack>
 
             <Dealer total={pot()}>
                 <Stack direction="row" spacing={2}>
