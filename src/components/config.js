@@ -59,10 +59,10 @@ export default {
 			image: {
 				"border-radius": "50%",
 				background: `url()`,
-				width: "75px",
-				height: "90px",
+				width: "3em",
+				height: "4em",
 				"background-size": "cover",
-				"box-shadow": "0 0 15px rgba(0, 0, 0, .5)",
+				"box-shadow": "0 0 1em rgba(0, 0, 0, .5)",
 				margin: "1em",
 			},
 		},

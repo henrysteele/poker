@@ -24,12 +24,13 @@ export default function () {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Dr. Poker ♠ ♥ ♣ ♦
+                        {/* ❤️ Dr. Poker  ♣️ ♦️ ♠️ */}
+                        ❤️ Dr. Poker
                     </Typography>
                     <Show when={user().unknown}>
                         <Button color="inherit" onClick={() => { setShowPopUp(true) }}>🔑 Sign In</Button>
                     </Show>
-                    <Show when={!user().unknown || show()}>
+                    <Show when={show()}>
                         <Button color="inherit" onClick={clickClerk}>
                             <SignIn /> <span style={{ "margin-left": "5px" }}>{userName()}</span>
                         </Button>
