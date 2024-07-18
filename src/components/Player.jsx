@@ -8,6 +8,7 @@ import {
   Container,
   Button,
 } from "@suid/material"
+import { userPFP, user } from "./Clerk"
 
 import { Money } from "./Money"
 import config from "./config"
@@ -20,18 +21,18 @@ import {
   bets,
   wallets,
   setWallets,
-  activePlayer, status,
+  activePlayer,
+  status,
   setStatus,
   setPot,
-  setActivePlayer
+  setActivePlayer,
 } from "./DrPokerGame"
 
 import { createMap } from "./helpers"
 
 import { getRank } from "./cards"
 
-
-export function Profile (props) {
+export function Profile(props) {
   return (
     <div>
       <div
@@ -39,7 +40,9 @@ export function Profile (props) {
           ...config.style.profile.image,
           ...props.style,
           background: `url(${props.src})`,
-          ...(activePlayer() == props.name ? { "box-shadow": "#82a21c 0px 0px 30px" } : {})
+          ...(activePlayer() == props.name
+            ? { "box-shadow": "#82a21c 0px 0px 30px" }
+            : {}),
         }}
       ></div>
       <div>{status()}</div>
@@ -47,10 +50,12 @@ export function Profile (props) {
   )
 }
 
-export function Dealer (props) {
-
+export function Dealer(props) {
   return (
-    <Box id={`dealer`} sx={{ margin: "1em", display: "inline-block", float: "left" }}>
+    <Box
+      id={`dealer`}
+      sx={{ margin: "1em", display: "inline-block", float: "left" }}
+    >
       <Card sx={{ padding: "1em", width: "fit-content", userSelect: "none" }}>
         <CardContent>
           <Stack direction="row">
@@ -64,7 +69,7 @@ export function Dealer (props) {
   )
 }
 
-export function Player (props) {
+export function Player(props) {
   const [call, setCall] = createSignal(0)
 
   createEffect(() => {
@@ -75,25 +80,25 @@ export function Player (props) {
     setCall(maxBet - bets()[props.name])
   })
 
-    function winner () {
-      let maxScore = 0
-      let winningName = "" 
-        for (let name in hands()) {
-          const rank = getRank(hands()[name]).score
-          if (rank > maxScore) {
-            maxScore = rank
-            winningName = name
-          }
+  function winner() {
+    let maxScore = 0
+    let winningName = ""
+    for (let name in hands()) {
+      const rank = getRank(hands()[name]).score
+      if (rank > maxScore) {
+        maxScore = rank
+        winningName = name
       }
-      return winningName
     }
+    return winningName
+  }
 
-  function onTada () {
+  function onTada() {
     const cards = Object.values(hands()).flat(Infinity)
     setShowingCards(cards)
     setStatus(winner() + " won!")
     setActivePlayer("")
-    let temp = structuredClone(wallets()) 
+    let temp = structuredClone(wallets())
     temp[winner()] += pot()
     setWallets(temp)
     setPot(0)
@@ -101,39 +106,52 @@ export function Player (props) {
 
   const disabled = {
     "pointer-events": "none",
-    opacity: 0.5
+    opacity: 0.5,
   }
 
   return (
     <Box
-
       id={`player-${props.name.condense()}`}
       sx={{
-        display: "inline-block", margin: "1em", userSelect: "none",
-        ...(activePlayer() != props.name ? disabled : {})
+        display: "inline-block",
+        margin: "1em",
+        userSelect: "none",
+        ...(activePlayer() != props.name ? disabled : {}),
       }}
     >
-      <Card sx={{
-        ...{ width: "fit-content" },
-        ...(activePlayer() == props.name ? { boxShadow: "0px 2px 1px -1px green, 0px 1px 1px 0px green, 0px 1px 3px 0px green" } : {})
-      }}>
+      <Card
+        sx={{
+          ...{ width: "fit-content" },
+          ...(activePlayer() == props.name
+            ? {
+                boxShadow:
+                  "0px 2px 1px -1px green, 0px 1px 1px 0px green, 0px 1px 3px 0px green",
+              }
+            : {}),
+        }}
+      >
         <CardContent>
           <Stack direction="row">
             <Stack direction="column">
-              <Profile name={props.name} src={props.src} />
-              <Button variant="xcontained" onClick={onTada} disabled={call() != 0}>
+              <Profile name={props.name} src={user().imageUrl || props.src} />
+              <Button
+                variant="xcontained"
+                onClick={onTada}
+                disabled={call() != 0}
+              >
                 💥 tada!
               </Button>
             </Stack>
             <Stack direction="column">
               <Money total={props.total} call={call()} name={props.name} />
-              <Box sx={{ margin: "1em", ...(call() ? disabled : {}) }}>{children(props.children)}</Box>
+              <Box sx={{ margin: "1em", ...(call() ? disabled : {}) }}>
+                {children(props.children)}
+              </Box>
             </Stack>
           </Stack>
         </CardContent>
         <CardActions></CardActions>
       </Card>
     </Box>
-
   )
 }
