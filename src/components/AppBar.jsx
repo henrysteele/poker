@@ -30,7 +30,7 @@ export default function () {
                     <Show when={user().unknown}>
                         <Button color="inherit" onClick={() => { setShowPopUp(true) }}>🔑 Sign In</Button>
                     </Show>
-                    <Show when={show()}>
+                    <Show when={!show()}>
                         <Button color="inherit" onClick={clickClerk}>
                             <SignIn /> <span style={{ "margin-left": "5px" }}>{userName()}</span>
                         </Button>
