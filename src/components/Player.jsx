@@ -133,7 +133,12 @@ export function Player(props) {
         <CardContent>
           <Stack direction="row">
             <Stack direction="column">
-              <Profile name={props.name} src={user().imageUrl || props.src} />
+              <Profile
+                name={props.name}
+                src={
+                  props.name == user().firstName ? user().imageUrl : props.src
+                }
+              />
               <Button
                 variant="xcontained"
                 onClick={onTada}

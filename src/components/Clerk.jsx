@@ -29,11 +29,6 @@ export function userName() {
   )
 }
 
-export function userPFP() {
-  const pfp = user().imageUrl
-  return pfp
-}
-
 export function clickClerk() {
   if (user().unknown) document.getElementById("sign-in")?.firstChild?.click()
   else document.getElementById("user-button")?.firstChild?.click()
