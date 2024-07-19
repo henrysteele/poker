@@ -32,7 +32,7 @@ import { createMap } from "./helpers"
 
 import { getRank } from "./cards"
 
-export function Profile(props) {
+export function Profile (props) {
   return (
     <div>
       <div
@@ -50,7 +50,7 @@ export function Profile(props) {
   )
 }
 
-export function Dealer(props) {
+export function Dealer (props) {
   return (
     <Box
       id={`dealer`}
@@ -59,7 +59,7 @@ export function Dealer(props) {
       <Card sx={{ padding: "1em", width: "fit-content", userSelect: "none" }}>
         <CardContent>
           <Stack direction="row">
-            <Profile name="dealer" src="/dist/peeps/dealer.png" />
+            <Profile name="dealer" src="/dist/peeps/joker.png" />
             <Money total={props.total} controls={false} />
           </Stack>
         </CardContent>
@@ -69,18 +69,16 @@ export function Dealer(props) {
   )
 }
 
-export function Player(props) {
+export function Player (props) {
   const [call, setCall] = createSignal(0)
 
   createEffect(() => {
-    let maxBet = Object.values(bets()).reduce(
-      (acc, cur) => Math.max(acc, cur),
-      0
-    )
+    const values = Object.values(bets())
+    let maxBet = values.reduce((acc, cur) => Math.max(acc, cur), 0)
     setCall(maxBet - bets()[props.name])
   })
 
-  function winner() {
+  function winner () {
     let maxScore = 0
     let winningName = ""
     for (let name in hands()) {
@@ -93,12 +91,12 @@ export function Player(props) {
     return winningName
   }
 
-  function onTada() {
+  function onTada () {
     setStatus(winner() + " won!")
     tossCoins(
       pot(),
       "#dealer .money",
-      `#player-${winner().condense()} .money`,
+      `#player-${winner()?.condense()} .money`,
       () => {
         const cards = Object.values(hands()).flat(Infinity)
         setShowingCards(cards)
@@ -118,7 +116,7 @@ export function Player(props) {
 
   return (
     <Box
-      id={`player-${props.name.condense()}`}
+      id={`player-${props.name?.condense()}`}
       sx={{
         display: "inline-block",
         margin: "1em",
@@ -131,9 +129,9 @@ export function Player(props) {
           ...{ width: "fit-content" },
           ...(activePlayer() == props.name
             ? {
-                boxShadow:
-                  "0px 2px 1px -1px green, 0px 1px 1px 0px green, 0px 1px 3px 0px green",
-              }
+              boxShadow:
+                "0px 2px 1px -1px green, 0px 1px 1px 0px green, 0px 1px 3px 0px green",
+            }
             : {}),
         }}
       >
