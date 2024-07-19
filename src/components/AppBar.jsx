@@ -8,6 +8,7 @@ import {
     Typography,
 } from "@suid/material";
 import { SignIn, userName, clickClerk, setShowPopUp, show, user } from "./Clerk"
+import { Show } from 'solid-js'
 
 export default function () {
     return (
@@ -30,11 +31,10 @@ export default function () {
                     <Show when={user().unknown}>
                         <Button color="inherit" onClick={() => { setShowPopUp(true) }}>🔑 Sign In</Button>
                     </Show>
-                    <Show when={show()}>
-                        <Button color="inherit" onClick={clickClerk}>
-                            <SignIn /> <span style={{ "margin-left": "5px" }}>{userName()}</span>
-                        </Button>
-                    </Show>
+
+                    <Button color="inherit" onClick={clickClerk}>
+                        <SignIn /> <span style={{ "margin-left": "5px" }}>{userName()}</span>
+                    </Button>
 
                 </Toolbar>
             </AppBar>
