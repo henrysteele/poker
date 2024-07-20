@@ -93,29 +93,29 @@ export function getRank(cards) {
 	let type = "none"
 
 	if (isFlush() && isStraight()) {
-		score = 9000 + ranks.indexOf(cards[0].rank)
+		score = 10000 + ranks.indexOf(cards[0].rank)
 		type = cards.join("").includes("A")
 			? "royal straight flush"
 			: "straight flush"
 	} else if (values.includes(4)) {
 		score =
-			8000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 4))
+			9000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 4))
 		type = "4kind"
 	} else if (values.includes(3) && values.includes(2)) {
 		score =
-			7000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 3))
+			8000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 3))
 		type = "fullhouse"
 	} else if (isFlush()) {
 		score =
-			6000 +
+			7000 +
 			cards.reduce((acc, card) => acc + ranks.indexOf(card.rank), 0)
 		type = "flush"
 	} else if (isStraight()) {
-		score = 5000 + ranks.indexOf(cards[0].rank)
+		score = 6000 + ranks.indexOf(cards[0].rank)
 		type = "straight"
 	} else if (values.includes(3)) {
 		score =
-			4000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 3))
+			5000 + ranks.indexOf(keys.find((rank) => rankCounts[rank] === 3))
 		type = "3kind"
 	} else if (values.filter((count) => count === 2).length === 2) {
 		const pairs = keys
@@ -214,7 +214,7 @@ function runSanityTest() {
 
 	console.log({ "2pairTest": a.score < b.score, a, b })
 
-	const three2s = getRank("2H,2D,2C,3D,2S".split(","))
+	const three2s = getRank("2H,2D,2C,3D,5S".split(","))
 	const twoAs2Ks = getRank("AH,AD,KH,KD,2S".split(","))
 
 	console.log({
@@ -222,6 +222,17 @@ function runSanityTest() {
 		twoAs2Ks,
 		three2s,
 	})
+
+	//KKQQ can beat 777
+
+	const three7s = getRank("7H,7D,7C,3D,5S".split(","))
+	const KKQQ = getRank("QH,QD,KH,KD,2S".split(","))
+
+	console.log({
+		"KKQQ vs 3x7s": KKQQ.score < three7s.score,
+		KKQQ,
+		three7s,
+	})
 }
 
-// runSanityTest()
+//runSanityTest()
