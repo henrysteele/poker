@@ -16,7 +16,7 @@ import { Player, Dealer } from "./Player"
 import { PlayingCard, DeckOfCards, Discards, Grid, Hand } from "./PlayingCards"
 import { tossCard, tossCoins } from "./animations.jquery"
 import { createMap } from "./helpers"
-import { user } from './Clerk'
+import { user } from "./Clerk"
 
 export const [deck, setDeck] = createSignal([]) //[ id, ... ]
 export const [discards, setDiscards] = createSignal([]) // [ id, ...]
@@ -31,7 +31,7 @@ export const [status, setStatus] = createSignal("Click the deck to deal")
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
-export function topCard (cards = deck()) {
+export function topCard(cards = deck()) {
   return cards.slice(-1)[0]
 }
 
@@ -43,14 +43,14 @@ const accessors = [
   [grid, setGrid],
 ]
 
-function replaceCards (a, b) {
+function replaceCards(a, b) {
   accessors.forEach((access) => {
     const json = JSON.stringify(access[0]())
     access[1](JSON.parse(json.replace(a, b)))
   })
 }
 
-function swapCards (a, b) {
+function swapCards(a, b) {
   const temp = a.split("").join("**")
   let all = JSON.stringify(accessors.map((access) => access[0]()))
   all = all.replace(a, temp)
@@ -63,7 +63,7 @@ function swapCards (a, b) {
   }
 }
 
-function tossCards (list, callback, i = 0) {
+function tossCards(list, callback, i = 0) {
   // list can have 2 or more cards, cards will be tossed forward
 
   const len = list.length
@@ -89,11 +89,11 @@ function tossCards (list, callback, i = 0) {
   }
 }
 
-function delay (time) {
+function delay(time) {
   return new Promise((resolve) => setTimeout(resolve, time))
 }
 
-export function placeBet (name, amount) {
+export function placeBet(name, amount) {
   let tmp = structuredClone(bets())
   tmp[name] += amount
   setBets(tmp)
@@ -102,8 +102,8 @@ export function placeBet (name, amount) {
   setWallets(tmp)
 }
 
-export function DrPokerGame (props) {
-  function reset () {
+export function DrPokerGame(props) {
+  function reset() {
     const names = players().map((player) => player.name)
     setSelectedIds([])
     setShowingCards([])
@@ -114,7 +114,7 @@ export function DrPokerGame (props) {
     setActivePlayer(names[0])
   }
 
-  function init (names) {
+  function init(names) {
     const avatars = config.profilenames
     names = names || props.names || []
     setPlayers([
@@ -122,11 +122,10 @@ export function DrPokerGame (props) {
         const src = `/dist/peeps/${avatars[i]}.png`
         return { name, src }
       }),
-      { name: user().username, src: user().imageUrl, },
+      { name: user().username, src: user().imageUrl },
       { name: "Botman", src: "/dist/peeps/batman.png", bot: true },
-    ]
-    )
-    names = players().map(player => player.name)
+    ])
+    names = players().map((player) => player.name)
     setWallets(createMap(names, config.freemoney || 1000))
     setBets(createMap(names, 0))
     reset()
@@ -139,13 +138,13 @@ export function DrPokerGame (props) {
     init()
   })
 
-  function addToWallet (name, amount) {
+  function addToWallet(name, amount) {
     const tmp = structuredClone(wallets())
     tmp[name] += amount
     setWallets(tmp)
   }
 
-  function onDeal () {
+  function onDeal() {
     reset()
 
     const cards = structuredClone(deck())
@@ -237,7 +236,7 @@ export function DrPokerGame (props) {
     }
   })
 
-  function nextPlayer () {
+  function nextPlayer() {
     // next player
     const names = players().map((player) => player.name)
     let i = names.indexOf(activePlayer()) + 1
@@ -284,8 +283,8 @@ export function DrPokerGame (props) {
     }
   })
 
-  function autoBot () {
-    const me = players().find(player => player.name == activePlayer())
+  function autoBot() {
+    const me = players().find((player) => player.name == activePlayer())
     if (me?.bot) {
       const discard = discards()[discards().length - 1]
       const options = [topCard(), discard, ...grid()]
@@ -295,14 +294,13 @@ export function DrPokerGame (props) {
         const hand = hands()[me.name]
         const i = Math.floor(Math.random() * hand.length)
         setSelectedIds([options[r], hand[i]])
-      }, 1500)
+      }, 3000)
     }
-    setTimeout(autoBot, 3000)
+    setTimeout(autoBot, 4000)
   }
 
   // automate play
   autoBot()
-
 
   return (
     <div>
