@@ -243,18 +243,6 @@ export function DrPokerGame (props) {
     setStatus(`It's ${activePlayer()}'s turn`)
   }
 
-  function bothAreInHand (ids) {
-    let count = 0
-    hands()[activePlayer()].forEach((card) => {
-      ids.forEach((id) => {
-        if (card == id) {
-          count++
-        }
-      })
-    })
-    return count
-  }
-
   // exchange cards
   createEffect(() => {
     let ids = [...selectedIds()]
@@ -283,13 +271,14 @@ export function DrPokerGame (props) {
       } else {
         // swap two cards
         const temp = [...ids]
-        const endOfTurn = !(bothAreInHand(ids) == 2)
+        const hand = hands()[activePlayer()]
+        const intersection = ids.filter(x => hand.includes(x));
+        const endOfTurn = (intersection.length != 2) // cards are both in the hand, so turn continues
+
         setSelectedIds((ids = [])) // important since this effect is called twice
         tossCards(temp, () => {
           swapCards(...temp)
-          if (endOfTurn) {
-            nextPlayer()
-          }
+          endOfTurn && nextPlayer()
         })
       }
     }
