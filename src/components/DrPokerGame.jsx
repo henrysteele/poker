@@ -246,6 +246,18 @@ export function DrPokerGame(props) {
     setStatus(`It's ${activePlayer()}'s turn`)
   }
 
+  function bothAreInHand(ids) {
+    let count = 0
+    hands()[activePlayer()].forEach((card) => {
+      ids.forEach((id) => {
+        if (card == id) {
+          count++
+        }
+      })
+    })
+    return count
+  }
+
   // exchange cards
   createEffect(() => {
     let ids = [...selectedIds()]
@@ -274,29 +286,31 @@ export function DrPokerGame(props) {
       } else {
         // swap two cards
         const temp = [...ids]
+        const endOfTurn = !(bothAreInHand(ids) == 2)
         setSelectedIds((ids = [])) // important since this effect is called twice
         tossCards(temp, () => {
           swapCards(...temp)
-          nextPlayer()
+          if (endOfTurn) {
+            nextPlayer()
+          }
         })
       }
     }
   })
 
   function autoBot() {
+    const pause = 3000
     const me = players().find((player) => player.name == activePlayer())
     if (me?.bot) {
       const discard = discards()[discards().length - 1]
       const options = [topCard(), discard, ...grid()]
       const r = Math.floor(Math.random() * options.length)
-      setSelectedIds([options[r]])
-      setTimeout(() => {
-        const hand = hands()[me.name]
-        const i = Math.floor(Math.random() * hand.length)
-        setSelectedIds([options[r], hand[i]])
-      }, 3000)
+
+      const hand = hands()[me.name]
+      const i = Math.floor(Math.random() * hand.length)
+      setSelectedIds([options[r], hand[i]])
     }
-    setTimeout(autoBot, 4000)
+    setTimeout(autoBot, pause)
   }
 
   // automate play
