@@ -17,6 +17,7 @@ import { PlayingCard, DeckOfCards, Discards, Grid, Hand } from "./PlayingCards"
 import { tossCard, tossCoins } from "./animations.jquery"
 import { createMap } from "./helpers"
 import { user } from "./Clerk"
+import { autoBot } from "./autoBot"
 
 export const [deck, setDeck] = createSignal([]) //[ id, ... ]
 export const [discards, setDiscards] = createSignal([]) // [ id, ...]
@@ -121,6 +122,8 @@ export function DrPokerGame (props) {
       : [
         { name: user().username, src: user().imageUrl },
         { name: "Botman", src: "/dist/peeps/batman.png", bot: true },
+        { name: "R2D2", src: "/dist/peeps/harleyquinn.png", bot: true },
+        { name: "C3P0", src: "/dist/peeps/dr.strange.png", bot: true },
       ]
 
     setPlayers(list)
@@ -128,6 +131,7 @@ export function DrPokerGame (props) {
     setWallets(createMap(names, config.freemoney || 1000))
     setBets(createMap(names, 0))
     reset()
+
   }
 
   onMount(init)
@@ -135,6 +139,7 @@ export function DrPokerGame (props) {
   createEffect(() => {
     user() // trigger
     init()
+
   })
 
   function addToWallet (name, amount) {
@@ -223,6 +228,7 @@ export function DrPokerGame (props) {
       })
     }, 4500)
     setStatus(`It's ${activePlayerName()}'s turn`)
+    autoBot()
   }
 
   // deal when clicked on deck and there's no grid
@@ -286,128 +292,8 @@ export function DrPokerGame (props) {
     }
   })
 
-  function getValue (value) {
-    if (value == "J") {
-      return 11
-    } else if (value == "Q") {
-      return 12
-    } else if (value == "K") {
-      return 13
-    } else if (value == "A") {
-      return 14
-    }
-    return parseInt(value)
-  }
-
-  function smartBot () {
-    if (!hands()["Botman"] || Object.values(hands()["Botman"]).length == 0)
-      return
-    const botCards = hands()["Botman"].map((card) =>
-      card.slice(0, card.length - 1)
-    )
-    const choices = [...grid().flat(), discards()[0]].map((card) =>
-      card.slice(0, card.length - 1)
-    )
-    let matches = choices.filter((card) => botCards.includes(card))
-    if (matches.length == 0) {
-      matches = choices
-    }
-    const sorted = matches.sort((a, b) => a - b)
-    let best = sorted[matches.length - 1]
-    console.log({ smartBot: botCards, choices, matches, best, sorted })
-    const withSuit = [...grid().flat(), discards()[0]]
-    for (let card of withSuit) {
-      if (card.includes(best)) {
-        best = card
-        return best
-      }
-    }
-    return best
-  }
-
-  function inHand () {
-    const hand = hands()["Botman"].sort((a, b) => a - b)
-    if (hand[0] != smartBot()) {
-      let choose = hand[0]
-      return choose
-    } else if (hand[1] != smartBot()) {
-      choose = hand[1]
-      return choose
-    } else if (hand[2] != smartBot()) {
-      choose = hand[2]
-      return choose
-    } else if (hand[3] != smartBot()) {
-      choose = hand[3]
-      return choose
-    } else if (hand[4] != smartBot()) {
-      choose = hand[4]
-      return choose
-    }
-  }
 
 
-
-  let allKnownCards = []
-  function autoBot () {
-    const pause = 3000
-
-    //update my memory
-    allKnownCards = [... new Set(
-      [...grid(), ...discards(), ...showingCards(), ...allKnownCards]
-    )].filter(item => !!item) // filter out undefined, etc.
-
-    const activePlayer = players().find((player) => player.name == activePlayerName())
-    if (activePlayer?.bot) {
-      const discard = discards()[discards().length - 1]
-      const options = [discard, ...grid()]
-      const myCards = hands()[activePlayer.name]
-
-      function tryOptions (options, myCards) {
-        let result = [] // return an empty list if it can't improve score
-
-        const myKnownCards = myCards.filter(card => allKnownCards.includes(card))
-        let maxScore = getRank(myKnownCards).score
-
-        if (myKnownCards.length == 5) {
-          // try swapping out all options in all positions
-          options.forEach(card => {
-            for (let i = 0; i < myKnownCards.length; i++) {
-              const newHand = [...myKnownCards.slice(0, i), card, ...myKnownCards.slice(i + 1)]
-              const score = getRank(newHand).score
-              if (score > maxScore) {
-                maxScore = score
-                result = [card, myKnownCards[i]]
-              }
-            }
-          })
-        } else {
-          // try all options and and swap with the first unknown card
-          const myUnknownCards = myCards.filter(card => !myKnownCards.includes(card))
-          options.forEach(card => {
-            const newHand = [...myKnownCards, card]
-            const score = getRank(newHand).score
-            if (score > maxScore) {
-              maxScore = score
-              result = [card, myUnknownCards[0]]
-            }
-          })
-        }
-        return result // return [] if I can't improve my score
-      }
-
-      let result = tryOptions(options, myCards) // see if I can improve my hand with the visible cards first
-      if (result.length != 2) {
-        result = tryOptions([topCard()], myCards) // try again with topcard
-      } if (result.length != 2) {
-        result = [topCard(), discard] // discard topcard
-      }
-      setSelectedIds(result)
-    }
-    setTimeout(autoBot, pause)
-  }
-
-  // automate play
-  autoBot()
 
   return (
     <div>
