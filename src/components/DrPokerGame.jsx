@@ -31,7 +31,7 @@ export const [status, setStatus] = createSignal("Click the deck to deal")
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
-export function topCard (cards = deck()) {
+export function topCard(cards = deck()) {
   return cards.slice(-1)[0]
 }
 
@@ -43,14 +43,14 @@ const accessors = [
   [grid, setGrid],
 ]
 
-function replaceCards (a, b) {
+function replaceCards(a, b) {
   accessors.forEach((access) => {
     const json = JSON.stringify(access[0]())
     access[1](JSON.parse(json.replace(a, b)))
   })
 }
 
-function swapCards (a, b) {
+function swapCards(a, b) {
   const temp = a.split("").join("**")
   let all = JSON.stringify(accessors.map((access) => access[0]()))
   all = all.replace(a, temp)
@@ -63,7 +63,7 @@ function swapCards (a, b) {
   }
 }
 
-function tossCards (list, callback, i = 0) {
+function tossCards(list, callback, i = 0) {
   // list can have 2 or more cards, cards will be tossed forward
 
   const len = list.length
@@ -89,11 +89,11 @@ function tossCards (list, callback, i = 0) {
   }
 }
 
-function delay (time) {
+function delay(time) {
   return new Promise((resolve) => setTimeout(resolve, time))
 }
 
-export function placeBet (name, amount) {
+export function placeBet(name, amount) {
   let tmp = structuredClone(bets())
   tmp[name] += amount
   setBets(tmp)
@@ -102,8 +102,8 @@ export function placeBet (name, amount) {
   setWallets(tmp)
 }
 
-export function DrPokerGame (props) {
-  function reset () {
+export function DrPokerGame(props) {
+  function reset() {
     const names = players().map((player) => player.name)
     setSelectedIds([])
     setShowingCards([])
@@ -114,15 +114,16 @@ export function DrPokerGame (props) {
     setActivePlayer(names[0])
   }
 
-  function init (names) {
-
-    const list = user().unknown ? [] : [
-      { name: user().username, src: user().imageUrl, },
-      { name: "Botman", src: "/dist/peeps/batman.png", bot: true },
-    ]
+  function init(names) {
+    const list = user().unknown
+      ? []
+      : [
+          { name: user().username, src: user().imageUrl },
+          { name: "Botman", src: "/dist/peeps/batman.png", bot: true },
+        ]
 
     setPlayers(list)
-    names = players().map(player => player.name)
+    names = players().map((player) => player.name)
     setWallets(createMap(names, config.freemoney || 1000))
     setBets(createMap(names, 0))
     reset()
@@ -135,13 +136,13 @@ export function DrPokerGame (props) {
     init()
   })
 
-  function addToWallet (name, amount) {
+  function addToWallet(name, amount) {
     const tmp = structuredClone(wallets())
     tmp[name] += amount
     setWallets(tmp)
   }
 
-  function onDeal () {
+  function onDeal() {
     reset()
 
     const cards = structuredClone(deck())
@@ -233,7 +234,7 @@ export function DrPokerGame (props) {
     }
   })
 
-  function nextPlayer () {
+  function nextPlayer() {
     // next player
     const names = players().map((player) => player.name)
     let i = names.indexOf(activePlayer()) + 1
@@ -272,8 +273,8 @@ export function DrPokerGame (props) {
         // swap two cards
         const temp = [...ids]
         const hand = hands()[activePlayer()]
-        const intersection = ids.filter(x => hand.includes(x));
-        const endOfTurn = (intersection.length != 2) // cards are both in the hand, so turn continues
+        const intersection = ids.filter((x) => hand.includes(x))
+        const endOfTurn = intersection.length != 2 // cards are both in the hand, so turn continues
 
         setSelectedIds((ids = [])) // important since this effect is called twice
         tossCards(temp, () => {
@@ -284,17 +285,73 @@ export function DrPokerGame (props) {
     }
   })
 
-  function autoBot () {
+  function getValue(value) {
+    if (value == "J") {
+      return 11
+    } else if (value == "Q") {
+      return 12
+    } else if (value == "K") {
+      return 13
+    } else if (value == "A") {
+      return 14
+    }
+    return parseInt(value)
+  }
+
+  function smartBot() {
+    if (!hands()["Botman"] || Object.values(hands()["Botman"]).length == 0)
+      return
+    const botCards = hands()["Botman"].map((card) =>
+      card.slice(0, card.length - 1)
+    )
+    const choices = [...grid().flat(), discards()[0]].map((card) =>
+      card.slice(0, card.length - 1)
+    )
+    let matches = choices.filter((card) => botCards.includes(card))
+    if (matches.length == 0) {
+      matches = choices
+    }
+    const sorted = matches.sort((a, b) => a - b)
+    let best = sorted[matches.length - 1]
+    console.log({ smartBot: botCards, choices, matches, best, sorted })
+    const withSuit = [...grid().flat(), discards()[0]]
+    for (let card of withSuit) {
+      if (card.includes(best)) {
+        best = card
+        return best
+      }
+    }
+    return best
+  }
+
+  function inHand() {
+    const hand = hands()["Botman"].sort((a, b) => a - b)
+    if (hand[0] != smartBot()) {
+      let choose = hand[0]
+      return choose
+    } else if (hand[1] != smartBot()) {
+      choose = hand[1]
+      return choose
+    } else if (hand[2] != smartBot()) {
+      choose = hand[2]
+      return choose
+    } else if (hand[3] != smartBot()) {
+      choose = hand[3]
+      return choose
+    } else if (hand[4] != smartBot()) {
+      choose = hand[4]
+      return choose
+    }
+  }
+
+  function autoBot() {
     const pause = 3000
     const me = players().find((player) => player.name == activePlayer())
     if (me?.bot) {
       const discard = discards()[discards().length - 1]
       const options = [topCard(), discard, ...grid()]
       const r = Math.floor(Math.random() * options.length)
-
-      const hand = hands()[me.name]
-      const i = Math.floor(Math.random() * hand.length)
-      setSelectedIds([options[r], hand[i]])
+      setSelectedIds([smartBot(), inHand()])
     }
     setTimeout(autoBot, pause)
   }
