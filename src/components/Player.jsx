@@ -20,7 +20,7 @@ import {
   bets,
   wallets,
   setWallets,
-  activePlayer,
+  activePlayerName,
   status,
   setStatus,
   setPot,
@@ -40,7 +40,7 @@ export function Profile (props) {
           ...config.style.profile.image,
           ...props.style,
           background: `url(${props.src})`,
-          ...(activePlayer() == props.name
+          ...(activePlayerName() == props.name
             ? { "box-shadow": "#82a21c 0px 0px 30px" }
             : {}),
         }}
@@ -121,13 +121,13 @@ export function Player (props) {
         display: "inline-block",
         margin: "1em",
         userSelect: "none",
-        ...(activePlayer() != props.name ? disabled : {}),
+        ...(activePlayerName() != props.name ? disabled : {}),
       }}
     >
       <Card
         sx={{
           ...{ width: "fit-content" },
-          ...(activePlayer() == props.name
+          ...(activePlayerName() == props.name
             ? {
               boxShadow:
                 "0px 2px 1px -1px green, 0px 1px 1px 0px green, 0px 1px 3px 0px green",

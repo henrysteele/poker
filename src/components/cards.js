@@ -1,4 +1,4 @@
-const faces = "♠♥♣♦".split("")
+const faces = "♣♦♥♠".split("")
 const numbers = "2,3,4,5,6,7,8,9,10,J,Q,K,A".split(",")
 
 export function createCards() {
@@ -58,9 +58,11 @@ export function getRank(cards) {
 	}))
 
 	// Helper functions
-	const isFlush = () => new Set(cards.map((c) => c.suit)).size === 1
+	const isFlush = () =>
+		cards.length >= 5 && new Set(cards.map((c) => c.suit)).size === 1
 
 	const isStraight = () => {
+		if (cards.length < 5) return false
 		const ranks = "23456789TJQKA"
 		const handRanks = cards
 			.map((c) => ranks.indexOf(c.rank))

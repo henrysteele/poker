@@ -26,12 +26,13 @@ export const [pot, setPot] = createSignal(0)
 export const [hands, setHands] = createSignal({})
 export const [wallets, setWallets] = createSignal({})
 export const [bets, setBets] = createSignal({})
-export const [activePlayer, setActivePlayer] = createSignal("dealer")
+export const [activePlayerName, setActivePlayer] = createSignal("dealer")
 export const [status, setStatus] = createSignal("Click the deck to deal")
+export const [knownCards, setKnownCards] = createSignal([])
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
-export function topCard(cards = deck()) {
+export function topCard (cards = deck()) {
   return cards.slice(-1)[0]
 }
 
@@ -43,14 +44,14 @@ const accessors = [
   [grid, setGrid],
 ]
 
-function replaceCards(a, b) {
+function replaceCards (a, b) {
   accessors.forEach((access) => {
     const json = JSON.stringify(access[0]())
     access[1](JSON.parse(json.replace(a, b)))
   })
 }
 
-function swapCards(a, b) {
+function swapCards (a, b) {
   const temp = a.split("").join("**")
   let all = JSON.stringify(accessors.map((access) => access[0]()))
   all = all.replace(a, temp)
@@ -63,7 +64,7 @@ function swapCards(a, b) {
   }
 }
 
-function tossCards(list, callback, i = 0) {
+function tossCards (list, callback, i = 0) {
   // list can have 2 or more cards, cards will be tossed forward
 
   const len = list.length
@@ -89,11 +90,11 @@ function tossCards(list, callback, i = 0) {
   }
 }
 
-function delay(time) {
+function delay (time) {
   return new Promise((resolve) => setTimeout(resolve, time))
 }
 
-export function placeBet(name, amount) {
+export function placeBet (name, amount) {
   let tmp = structuredClone(bets())
   tmp[name] += amount
   setBets(tmp)
@@ -102,8 +103,8 @@ export function placeBet(name, amount) {
   setWallets(tmp)
 }
 
-export function DrPokerGame(props) {
-  function reset() {
+export function DrPokerGame (props) {
+  function reset () {
     const names = players().map((player) => player.name)
     setSelectedIds([])
     setShowingCards([])
@@ -114,13 +115,13 @@ export function DrPokerGame(props) {
     setActivePlayer(names[0])
   }
 
-  function init(names) {
+  function init (names) {
     const list = user().unknown
       ? []
       : [
-          { name: user().username, src: user().imageUrl },
-          { name: "Botman", src: "/dist/peeps/batman.png", bot: true },
-        ]
+        { name: user().username, src: user().imageUrl },
+        { name: "Botman", src: "/dist/peeps/batman.png", bot: true },
+      ]
 
     setPlayers(list)
     names = players().map((player) => player.name)
@@ -136,13 +137,13 @@ export function DrPokerGame(props) {
     init()
   })
 
-  function addToWallet(name, amount) {
+  function addToWallet (name, amount) {
     const tmp = structuredClone(wallets())
     tmp[name] += amount
     setWallets(tmp)
   }
 
-  function onDeal() {
+  function onDeal () {
     reset()
 
     const cards = structuredClone(deck())
@@ -221,7 +222,7 @@ export function DrPokerGame(props) {
         )
       })
     }, 4500)
-    setStatus(`It's ${activePlayer()}'s turn`)
+    setStatus(`It's ${activePlayerName()}'s turn`)
   }
 
   // deal when clicked on deck and there's no grid
@@ -234,14 +235,14 @@ export function DrPokerGame(props) {
     }
   })
 
-  function nextPlayer() {
+  function nextPlayer () {
     // next player
     const names = players().map((player) => player.name)
-    let i = names.indexOf(activePlayer()) + 1
+    let i = names.indexOf(activePlayerName()) + 1
     if (i == names.length) i = 0
 
     setActivePlayer(names[i])
-    setStatus(`It's ${activePlayer()}'s turn`)
+    setStatus(`It's ${activePlayerName()}'s turn`)
   }
 
   // exchange cards
@@ -272,7 +273,7 @@ export function DrPokerGame(props) {
       } else {
         // swap two cards
         const temp = [...ids]
-        const hand = hands()[activePlayer()]
+        const hand = hands()[activePlayerName()]
         const intersection = ids.filter((x) => hand.includes(x))
         const endOfTurn = intersection.length != 2 // cards are both in the hand, so turn continues
 
@@ -285,7 +286,7 @@ export function DrPokerGame(props) {
     }
   })
 
-  function getValue(value) {
+  function getValue (value) {
     if (value == "J") {
       return 11
     } else if (value == "Q") {
@@ -298,7 +299,7 @@ export function DrPokerGame(props) {
     return parseInt(value)
   }
 
-  function smartBot() {
+  function smartBot () {
     if (!hands()["Botman"] || Object.values(hands()["Botman"]).length == 0)
       return
     const botCards = hands()["Botman"].map((card) =>
@@ -324,7 +325,7 @@ export function DrPokerGame(props) {
     return best
   }
 
-  function inHand() {
+  function inHand () {
     const hand = hands()["Botman"].sort((a, b) => a - b)
     if (hand[0] != smartBot()) {
       let choose = hand[0]
@@ -344,14 +345,63 @@ export function DrPokerGame(props) {
     }
   }
 
-  function autoBot() {
+
+
+  let allKnownCards = []
+  function autoBot () {
     const pause = 3000
-    const me = players().find((player) => player.name == activePlayer())
-    if (me?.bot) {
+
+    //update my memory
+    allKnownCards = [... new Set(
+      [...grid(), ...discards(), ...showingCards(), ...allKnownCards]
+    )].filter(item => !!item) // filter out undefined, etc.
+
+    const activePlayer = players().find((player) => player.name == activePlayerName())
+    if (activePlayer?.bot) {
       const discard = discards()[discards().length - 1]
-      const options = [topCard(), discard, ...grid()]
-      const r = Math.floor(Math.random() * options.length)
-      setSelectedIds([smartBot(), inHand()])
+      const options = [discard, ...grid()]
+      const myCards = hands()[activePlayer.name]
+
+      function tryOptions (options, myCards) {
+        let result = [] // return an empty list if it can't improve score
+
+        const myKnownCards = myCards.filter(card => allKnownCards.includes(card))
+        let maxScore = getRank(myKnownCards).score
+
+        if (myKnownCards.length == 5) {
+          // try swapping out all options in all positions
+          options.forEach(card => {
+            for (let i = 0; i < myKnownCards.length; i++) {
+              const newHand = [...myKnownCards.slice(0, i), card, ...myKnownCards.slice(i + 1)]
+              const score = getRank(newHand).score
+              if (score > maxScore) {
+                maxScore = score
+                result = [card, myKnownCards[i]]
+              }
+            }
+          })
+        } else {
+          // try all options and and swap with the first unknown card
+          const myUnknownCards = myCards.filter(card => !myKnownCards.includes(card))
+          options.forEach(card => {
+            const newHand = [...myKnownCards, card]
+            const score = getRank(newHand).score
+            if (score > maxScore) {
+              maxScore = score
+              result = [card, myUnknownCards[0]]
+            }
+          })
+        }
+        return result // return [] if I can't improve my score
+      }
+
+      let result = tryOptions(options, myCards) // see if I can improve my hand with the visible cards first
+      if (result.length != 2) {
+        result = tryOptions([topCard()], myCards) // try again with topcard
+      } if (result.length != 2) {
+        result = [topCard(), discard] // discard topcard
+      }
+      setSelectedIds(result)
     }
     setTimeout(autoBot, pause)
   }

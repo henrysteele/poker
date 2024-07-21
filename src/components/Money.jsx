@@ -10,7 +10,7 @@ import {
   ButtonGroup,
 } from "@suid/material"
 import "./Money.css"
-import { pot, setPot, placeBet, activePlayer, players } from "./DrPokerGame"
+import { pot, setPot, placeBet, activePlayerName, players } from "./DrPokerGame"
 import $ from "jquery"
 import config from "./config"
 import { tossCoins } from "./animations.jquery"
@@ -100,8 +100,8 @@ export function Money (props) {
   }
 
   createEffect(() => {
-    if (props.name == activePlayer()) {
-      const me = players().find(player => player.name == activePlayer())
+    if (props.name == activePlayerName()) {
+      const me = players().find(player => player.name == activePlayerName())
       if (me?.bot) {
         // automate play
         onCall()
