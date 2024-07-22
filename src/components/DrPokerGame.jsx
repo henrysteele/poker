@@ -272,10 +272,6 @@ export function DrPokerGame (props) {
           setDeck(cards) // remove top from deck
           nextPlayer()
         })
-
-        setTimeout(() => {
-          setShowingCards(showingCards().filter((card) => !card != topCard))
-        }, 3000)
       } else {
         // swap two cards
         const temp = [...ids]
