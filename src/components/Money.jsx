@@ -10,13 +10,20 @@ import {
   ButtonGroup,
 } from "@suid/material"
 import "./Money.css"
-import { pot, setPot, placeBet, activePlayerName, players } from "./DrPokerGame"
+import {
+  pot,
+  setPot,
+  placeBet,
+  activePlayerName,
+  players,
+  setStatus,
+} from "./DrPokerGame"
 import $ from "jquery"
 import config from "./config"
 import { tossCoins } from "./animations.jquery"
 import { createMap } from "./helpers"
 
-export function Money (props) {
+export function Money(props) {
   const [output, setOutput] = createSignal([])
   const [total, setTotal] = createSignal(props.total)
   const [bet, setBet] = createSignal(5)
@@ -62,11 +69,11 @@ export function Money (props) {
     setOutput(out)
   })
 
-  function onSlide (e) {
+  function onSlide(e) {
     setBet(Math.round(e.target.value)) // ensure it's a number, not a string!
   }
 
-  function onBet (amount = 0) {
+  function onBet(amount = 0) {
     setBusy(true)
     amount = Math.max(0, Math.min(amount, total()))
     tossCoins(
@@ -82,7 +89,7 @@ export function Money (props) {
     )
   }
 
-  function onCall () {
+  function onCall() {
     if (call() == 0) return
     setBusy(true)
     const amount = call()
@@ -101,7 +108,7 @@ export function Money (props) {
 
   createEffect(() => {
     if (props.name == activePlayerName()) {
-      const me = players().find(player => player.name == activePlayerName())
+      const me = players().find((player) => player.name == activePlayerName())
       if (me?.bot) {
         // automate play
         onCall()
@@ -109,6 +116,11 @@ export function Money (props) {
           onBet(Math.min(total(), config?.bot?.bet || 5))
         }, 500)
       }
+    }
+    if (call() > 0) {
+      setStatus(`${activePlayerName()} owes ${call()}`)
+    } else {
+      setStatus(`It's ${activePlayerName()}'s turn`)
     }
   })
 

@@ -33,7 +33,7 @@ export const [knownCards, setKnownCards] = createSignal([])
 
 export const [showingCards, setShowingCards] = createSignal([]) // [id]
 
-export function topCard (cards = deck()) {
+export function topCard(cards = deck()) {
   return cards.slice(-1)[0]
 }
 
@@ -45,14 +45,14 @@ const accessors = [
   [grid, setGrid],
 ]
 
-function replaceCards (a, b) {
+function replaceCards(a, b) {
   accessors.forEach((access) => {
     const json = JSON.stringify(access[0]())
     access[1](JSON.parse(json.replace(a, b)))
   })
 }
 
-function swapCards (a, b) {
+function swapCards(a, b) {
   const temp = a.split("").join("**")
   let all = JSON.stringify(accessors.map((access) => access[0]()))
   all = all.replace(a, temp)
@@ -65,7 +65,7 @@ function swapCards (a, b) {
   }
 }
 
-function tossCards (list, callback, i = 0) {
+function tossCards(list, callback, i = 0) {
   // list can have 2 or more cards, cards will be tossed forward
 
   const len = list.length
@@ -91,11 +91,11 @@ function tossCards (list, callback, i = 0) {
   }
 }
 
-function delay (time) {
+function delay(time) {
   return new Promise((resolve) => setTimeout(resolve, time))
 }
 
-export function placeBet (name, amount) {
+export function placeBet(name, amount) {
   let tmp = structuredClone(bets())
   tmp[name] += amount
   setBets(tmp)
@@ -104,8 +104,8 @@ export function placeBet (name, amount) {
   setWallets(tmp)
 }
 
-export function DrPokerGame (props) {
-  function reset () {
+export function DrPokerGame(props) {
+  function reset() {
     const names = players().map((player) => player.name)
     setSelectedIds([])
     setShowingCards([])
@@ -116,22 +116,21 @@ export function DrPokerGame (props) {
     setActivePlayer(names[0])
   }
 
-  function init (names) {
+  function init(names) {
     const list = user().unknown
       ? []
       : [
-        { name: user().username, src: user().imageUrl },
-        { name: "Botman", src: "/dist/peeps/batman.png", bot: true },
-        { name: "R2D2", src: "/dist/peeps/harleyquinn.png", bot: true },
-        { name: "C3P0", src: "/dist/peeps/dr.strange.png", bot: true },
-      ]
+          { name: user().username, src: user().imageUrl },
+          { name: "Botman", src: "/dist/peeps/batman.png", bot: true },
+          { name: "R2D2", src: "/dist/peeps/harleyquinn.png", bot: true },
+          { name: "C3P0", src: "/dist/peeps/dr.strange.png", bot: true },
+        ]
 
     setPlayers(list)
     names = players().map((player) => player.name)
     setWallets(createMap(names, config.freemoney || 1000))
     setBets(createMap(names, 0))
     reset()
-
   }
 
   onMount(init)
@@ -139,16 +138,15 @@ export function DrPokerGame (props) {
   createEffect(() => {
     user() // trigger
     init()
-
   })
 
-  function addToWallet (name, amount) {
+  function addToWallet(name, amount) {
     const tmp = structuredClone(wallets())
     tmp[name] += amount
     setWallets(tmp)
   }
 
-  function onDeal () {
+  function onDeal() {
     reset()
 
     const cards = structuredClone(deck())
@@ -227,7 +225,6 @@ export function DrPokerGame (props) {
         )
       })
     }, 4500)
-    setStatus(`It's ${activePlayerName()}'s turn`)
     autoBot()
   }
 
@@ -241,14 +238,13 @@ export function DrPokerGame (props) {
     }
   })
 
-  function nextPlayer () {
+  function nextPlayer() {
     // next player
     const names = players().map((player) => player.name)
     let i = names.indexOf(activePlayerName()) + 1
     if (i == names.length) i = 0
 
     setActivePlayer(names[i])
-    setStatus(`It's ${activePlayerName()}'s turn`)
   }
 
   // exchange cards
@@ -291,9 +287,6 @@ export function DrPokerGame (props) {
       }
     }
   })
-
-
-
 
   return (
     <div>
